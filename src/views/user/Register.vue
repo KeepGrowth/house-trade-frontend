@@ -64,8 +64,8 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import axios from 'axios' // 假设已配置好 axios 实例
-
+import { useUserStore } from '@/stores/user';
+const userStore = useUserStore()
 const router = useRouter()
 const registerFormRef = ref<FormInstance>()
 const loading = ref(false)
@@ -120,23 +120,12 @@ const handleRegister = async () => {
     if (valid) {
       loading.value = true
       try {
-        // 调用后端接口 (对应方案中的 /api/v1/auth/register)
-        const response = await axios.post('/api/v1/auth/register', {
-          username: formData.username,
-          password: formData.password,
-          phone: formData.phone,
-          role: formData.role
+        const res = await userStore.register({
+          username:formData.username,
+          password:formData.password,
+          phone:formData.phone,
+          role:formData.role
         })
-
-        // 假设后端返回格式 { code: 200, msg: 'success', data: ... }
-        if (response.data.code === 200 || response.data.code === 0) {
-          ElMessage.success('注册成功，即将跳转登录')
-          setTimeout(() => {
-            router.push('/login')
-          }, 1500)
-        } else {
-          ElMessage.error(response.data.msg || '注册失败')
-        }
       } catch (error: any) {
         ElMessage.error(error.response?.data?.msg || '网络请求失败')
       } finally {

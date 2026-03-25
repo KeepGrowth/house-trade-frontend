@@ -102,23 +102,17 @@ const handleLogin = async () => {
     if (valid) {
       loading.value = true;
       try {
-        // 调用后端接口设计方案中的 /api/v1/auth/login
-        const { data } = await request.post('/auth/login', {
+        // 调用后端接口设计方案中的 /login
+        const  data  = await userStore.login({
           username: loginForm.username,
           password: loginForm.password
         });
-
-        // 假设返回格式 { code: 200, msg: 'success', data: { token, user_info } }
-        if (data.code === 200) {
-          // 保存 Token 和用户信息到 Pinia
-          userStore.setToken(data.data.token);
-          userStore.setUserInfo(data.data.user_info);
-
+        console.log(data)
+        if (data.data.code === 200) {
           ElMessage.success('登录成功');
-
           // 根据角色跳转或回到上一页
           // 方案中提到角色有：1-购房者, 2-房东, 3-管理员
-          const role = data.data.user_info.role;
+          const role = userStore.userInfo.role
           if (role === 3) {
             router.replace('/admin'); // 管理员跳转后台
           } else {

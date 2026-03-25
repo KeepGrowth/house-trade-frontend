@@ -9,7 +9,6 @@ import ElementPlus from 'element-plus'
 
 const app = createApp(App)
 
-app.use(createPinia())
 app.use(ElementPlus)
 app.use(router)
 app.use(createPinia().use(piniaPluginPersistedstate))// ✅ 注册持久化Pinia插件

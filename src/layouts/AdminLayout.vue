@@ -55,8 +55,8 @@
           <div class="header-right">
             <el-dropdown @command="handleCommand">
               <span class="user-info">
-                <el-avatar :size="32" :src="userStore.avatar || ''" />
-                <span class="username">{{ userStore.username }}</span>
+
+                <span class="username is-align-center">{{ userStore.userInfo.username }}</span>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
