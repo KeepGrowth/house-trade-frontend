@@ -84,11 +84,9 @@ export const useUserStore = defineStore('user', () => {
    */
   async function updateProfile(updateData) {
     try {
-      // 注意：后端接口定义是 PUT /users/profile，参数是 UserUpdate
-      // 可能需要传入 user_id，如果 current_user 已经包含，后端可能忽略或校验
       const res = await api.put('/users/profile', updateData);
-      if (res.code === 200 || res.message === '修改成功') {
-        userInfo.value = res.data; // 更新本地状态
+      if (res.data.code === 200 || res.data.message === '修改成功') {
+        userInfo.value = res.data.data; // 更新本地状态
         return res.data;
       }
     } catch (error) {
@@ -141,11 +139,11 @@ export const useUserStore = defineStore('user', () => {
   async function fetchMyHouses() {
     try {
       const res = await api.get('/users/my-houses');
-      if (res.code === 200 || res.message === '获取成功') {
+      if (res.data.code === 200 || res.data.message === '获取成功') {
         // 后端返回结构: { houses: [...], total: 10 }
-        myHouses.value = res.data.houses;
-        totalHouses.value = res.data.total;
-        return res.data;
+        myHouses.value = res.data.data.houses;
+        totalHouses.value = res.data.data.total;
+        return res;
       }
     } catch (error) {
       throw error.response?.data || error;
@@ -203,5 +201,7 @@ export const useUserStore = defineStore('user', () => {
     logout,
     init
   };
+},{
+  persist:true
 });
 export default useUserStore

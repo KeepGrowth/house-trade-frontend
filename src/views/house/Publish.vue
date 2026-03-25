@@ -67,7 +67,8 @@
       <div v-show="currentStep === 1">
         <el-form-item label="上传图片" prop="images">
           <el-upload
-            action="/api/v1/upload/image"
+            action="http://localhost:8086/upload/image"
+            :headers="{ Authorization: `Bearer ${userStore.token}` }"
             list-type="picture-card"
             :on-success="handleUploadSuccess"
             :on-remove="handleRemove"
@@ -130,7 +131,7 @@
     <!-- 底部操作按钮 -->
     <div class="flex justify-between mt-8 pt-4 border-t border-gray-100">
       <el-button v-if="currentStep > 0" @click="prevStep">上一步</el-button>
-      <el-button v-else disabled></el-button> <!-- 占位保持布局 -->
+      <el-button v-else disabled></el-button>
 
       <el-button
         v-if="currentStep < 3"
@@ -157,14 +158,14 @@ import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 import axios from 'axios';
-// 假设你有一个封装好的 request 实例，或者直接使用 axios
-// import request from '@/utils/request';
-
+import useUserStore from '@/stores/user.js'
+import useHouseStore from '@/stores/house.js'
+const userStore = useUserStore()
 const router = useRouter();
 const formRef = ref(null);
 const submitting = ref(false);
 const currentStep = ref(0);
-
+const houseStore = useHouseStore()
 // 表单数据
 const formData = reactive({
   title: '',
@@ -174,7 +175,6 @@ const formData = reactive({
   district: '',
   community: '',
   features: [],
-  description: '',
   // 图片URL列表，提交时传给后端
   image_urls: []
 });
@@ -190,7 +190,6 @@ const formRules = {
   house_type: [{ required: true, message: '请选择户型', trigger: 'change' }],
   district: [{ required: true, message: '请选择区域', trigger: 'change' }],
   community: [{ required: true, message: '请输入小区名称', trigger: 'blur' }],
-  images: [{ required: true, message: '请至少上传一张图片', trigger: 'change' }]
 };
 
 // 步骤切换逻辑
@@ -218,9 +217,10 @@ const prevStep = () => {
 
 // 图片上传处理
 const handleUploadSuccess = (response, uploadFile) => {
-  // 假设后端返回 { code: 200, data: { url: '...' } }
-  if (response.code === 200 || response.status === 'success') {
+  console.log(response)
+  if (response.code === 200) {
     const imageUrl = response.data?.url || response.url;
+    fileList.value.push(imageUrl)
     // 更新 formData 中的图片链接列表
     formData.image_urls.push(imageUrl);
   } else {
@@ -260,17 +260,14 @@ const submitForm = async () => {
     const payload = {
       ...formData,
       // 确保图片字段符合后端要求，方案中设计为 house_images 表，通常后端接收 URL 列表或单独上传
-      images: formData.image_urls
+      imageUrls: formData.image_urls
     };
-
-    // 调用后端 API (根据方案：POST /api/v1/houses)
-    // 这里假设使用了拦截器自动添加 Token
-    const res = await axios.post('/api/v1/houses', payload);
-
+    console.log(payload)
+    const res = await houseStore.createHouse(payload)
     if (res.data.code === 200 || res.data.status === 'success') {
       ElMessage.success('房源发布成功，等待管理员审核！');
       // 跳转到我的房源页面或详情页
-      router.push('/user/center/my-house');
+      router.push('user/my-houses');
     } else {
       ElMessage.error(res.data.msg || '发布失败');
     }

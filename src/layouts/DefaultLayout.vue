@@ -48,8 +48,7 @@
           <template v-else>
             <el-dropdown trigger="click" @command="handleCommand">
               <div class="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded-md transition">
-                <el-avatar :size="32" :src="userStore.avatar || defaultAvatar" />
-                <span class="text-gray-700 font-medium hidden sm:block">{{ userStore.username }}</span>
+                <span class="text-gray-700 font-medium hidden sm:block">{{ userStore.userInfo.username }}</span>
                 <el-icon class="text-gray-400"><arrow-down /></el-icon>
               </div>
               <template #dropdown>

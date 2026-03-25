@@ -48,19 +48,19 @@ const routes = [
         path: 'user/center',
         name: 'UserCenter',
         component: () => import('@/views/user/Center.vue'),
-        meta: { title: '个人中心', requiresAuth: true }
+        meta: { title: '个人中心', requiresAuth: true, roles:[2] }
       },
       {
         path: 'user/my-houses',
         name: 'MyHouses',
         component: () => import('@/views/house/MyList.vue'),
-        meta: { title: '我的房源', requiresAuth: false, roles: [2] } // 角色2: 房东
+        meta: { title: '我的房源', requiresAuth: true,roles:[2]} // 角色2: 房东
       },
       {
         path: 'publish-house',
         name: 'PublishHouse',
         component: () => import('@/views/house/Publish.vue'),
-        meta: { title: '发布房源', requiresAuth: true, roles: [2] }
+        meta: { title: '发布房源', requiresAuth: true}
       },
       {
         path: 'user/favorites',
@@ -120,7 +120,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const token = userStore.token
-  const role = userStore.role // 1-购房者, 2-房东, 3-管理员
+  const role = userStore.userInfo.role // 1-购房者, 2-房东, 3-管理员
 
   // 设置页面标题
   document.title = to.meta.title ? `${to.meta.title} - 二手房交易平台` : '二手房交易平台'

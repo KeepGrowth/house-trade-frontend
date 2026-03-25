@@ -16,7 +16,7 @@
           <div class="text-center mb-4">
             <el-avatar :size="100" :src="userInfo.avatar || defaultAvatar" class="mb-2" />
             <el-upload
-              action="/api/v1/upload/avatar"
+              action="http://localhost:8086/upload/avatar"
               :headers="{ Authorization: `Bearer ${token}` }"
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
@@ -96,7 +96,7 @@ import axios from 'axios';
 import useUserStore from '@/stores/user.js'
 
 const userStore = useUserStore();
-const token = localStorage.getItem('token'); // 或从 pinia 获取
+const token = userStore.token
 const loading = ref(false);
 const defaultAvatar = '/images/default-avatar.png';
 
@@ -112,15 +112,8 @@ const userInfo = ref({
 // 获取用户详情
 const fetchUserInfo = async () => {
   try {
-    // 调用后端接口 /api/v1/user/profile
-    const res = await axios.get('/api/v1/user/profile', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.data.code === 200) {
-      userInfo.value = res.data.data;
-      // 同步更新 Pinia 中的用户信息
-      userStore.setUserInfo(res.data.data);
-    }
+    userInfo.value = userStore.userInfo
+    console.log(userInfo.value)
   } catch (error) {
     ElMessage.error('获取用户信息失败');
   }
@@ -129,6 +122,7 @@ const fetchUserInfo = async () => {
 // 更新头像成功回调
 const handleAvatarSuccess = (response) => {
   if (response.code === 200) {
+    console.log(response)
     userInfo.value.avatar = response.data.url;
     ElMessage.success('头像更新成功');
   } else {
@@ -140,21 +134,17 @@ const handleAvatarSuccess = (response) => {
 const updateProfile = async () => {
   loading.value = true;
   try {
-    const res = await axios.put('/api/v1/user/profile', {
-      phone: userInfo.value.phone,
-      avatar: userInfo.value.avatar
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    if (res.data.code === 200) {
-      ElMessage.success('资料保存成功');
-      userStore.setUserInfo(userInfo.value); // 更新本地状态
+    const res = await userStore.updateProfile({
+      phone:userInfo.value.phone,
+      userId:userStore.userInfo.userId
+    })
+    if (res.code === 200) {
+      ElMessage.success('资料保存成功，重新登陆后生效。');
     } else {
-      ElMessage.error(res.data.msg);
+      ElMessage.error(res.data.message);
     }
   } catch (error) {
-    ElMessage.error('保存失败，请重试');
+    ElMessage.error('保存失败，请重试' + error);
   } finally {
     loading.value = false;
   }
