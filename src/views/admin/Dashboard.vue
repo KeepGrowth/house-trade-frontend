@@ -1,0 +1,162 @@
+<template>
+  <div class="dashboard-container p-6">
+    <!-- 页面标题 -->
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">数据看板</h2>
+
+    <!-- 核心指标卡片 (可选补充) -->
+    <el-row :gutter="20" class="mb-6">
+      <el-col :span="6" v-for="(item, index) in summaryData" :key="index">
+        <el-card shadow="hover" class="stat-card">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-gray-500 text-sm">{{ item.title }}</p>
+              <p class="text-2xl font-bold mt-2">{{ item.value }}</p>
+            </div>
+            <el-icon :size="30" color="#409EFF"><component :is="item.icon" /></el-icon>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 图表区域 -->
+    <el-row :gutter="20">
+      <!-- 注册用户趋势图 -->
+      <el-col :span="12" class="mb-6">
+        <el-card shadow="always">
+          <template #header>
+            <div class="card-header font-bold">注册用户数趋势</div>
+          </template>
+          <div ref="userTrendChart" style="width: 100%; height: 350px;"></div>
+        </el-card>
+      </el-col>
+
+      <!-- 区域房源占比图 -->
+      <el-col :span="12" class="mb-6">
+        <el-card shadow="always">
+          <template #header>
+            <div class="card-header font-bold">各区域房源占比</div>
+          </template>
+          <div ref="districtChart" style="width: 100%; height: 350px;"></div>
+        </el-card>
+      </el-col>
+
+      <!-- 房源状态统计图 -->
+      <el-col :span="24">
+        <el-card shadow="always">
+          <template #header>
+            <div class="card-header font-bold">房源成交量与状态统计</div>
+          </template>
+          <div ref="houseStatusChart" style="width: 100%; height: 350px;"></div>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted, nextTick } from 'vue';
+import * as echarts from 'echarts';
+import axios from 'axios'; // 假设已配置好 axios 实例
+// import { User, House, Sold } from '@element-plus/icons-vue'; // 图标
+
+// 响应式引用
+const userTrendChart = ref(null);
+const districtChart = ref(null);
+const houseStatusChart = ref(null);
+
+// 模拟核心指标数据 (实际应从后端获取)
+const summaryData = ref([
+  { title: '总用户数', value: '1,204', icon: 'User' },
+  { title: '总房源数', value: '856', icon: 'House' },
+  { title: '本月成交', value: '42', icon: 'Sold' },
+  { title: '待审核房源', value: '5', icon: 'Warning' }
+]);
+
+// 初始化图表函数
+const initCharts = () => {
+  // 1. 注册用户趋势图 (折线图)
+  const trendChart = echarts.init(userTrendChart.value);
+  trendChart.setOption({
+    tooltip: { trigger: 'axis' },
+    xAxis: { type: 'category', data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] },
+    yAxis: { type: 'value' },
+    series: [{
+      data: [120, 200, 150, 80, 70, 110, 130],
+      type: 'line',
+      smooth: true,
+      areaStyle: { opacity: 0.3 },
+      itemStyle: { color: '#409EFF' }
+    }]
+  });
+
+  // 2. 区域房源占比 (饼图)
+  const districtChar = echarts.init(districtChart.value);
+  districtChar.setOption({
+    tooltip: { trigger: 'item' },
+    legend: { top: '5%', left: 'center' },
+    series: [{
+      name: '房源数量',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+      data: [
+        { value: 1048, name: '朝阳区' },
+        { value: 735, name: '海淀区' },
+        { value: 580, name: '西城区' },
+        { value: 484, name: '东城区' }
+      ]
+    }]
+  });
+
+  // 3. 房源状态统计 (柱状图)
+  const statusChart = echarts.init(houseStatusChart.value);
+  statusChart.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    legend: {},
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'category', data: ['在售', '已售', '已下架', '待审核'] },
+    yAxis: { type: 'value' },
+    series: [{
+      data: [320, 120, 50, 15],
+      type: 'bar',
+      barWidth: '40%',
+      itemStyle: { color: '#67C23A' }
+    }]
+  });
+};
+
+// 监听窗口大小变化以自适应图表
+const handleResize = () => {
+  echarts.getInstanceByDom(userTrendChart.value)?.resize();
+  echarts.getInstanceByDom(districtChart.value)?.resize();
+  echarts.getInstanceByDom(houseStatusChart.value)?.resize();
+};
+
+onMounted(async () => {
+  await nextTick();
+  initCharts();
+  window.addEventListener('resize', handleResize);
+
+  // TODO: 调用后端接口 /api/v1/admin/stats 获取真实数据并更新图表 option
+  // try {
+  //   const res = await axios.get('/api/v1/admin/stats');
+  //   if(res.data.code === 200) {
+  //     // 使用 res.data.data 更新上述图表配置
+  //   }
+  // } catch (error) {
+  //   console.error("获取统计数据失败", error);
+  // }
+});
+</script>
+
+<style scoped>
+.dashboard-container {
+  background-color: #f5f7fa; /* 浅灰背景 */
+  min-height: 100vh;
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s;
+}
+</style>

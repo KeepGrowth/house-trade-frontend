@@ -1,60 +1,171 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
-
-// 引入方案中定义的公共组件
-import NavBar from '@/components/NavBar.vue'
-import Footer from '@/components/Footer.vue'
-import PageContainer from '@/components/Pagecontainer.vue'
-import useUserStore from '@/stores/user'
-import HouseListGrid from '@/App.vue'
-
-const route = useRoute()
-const userStore = useUserStore()
-
-// 根据路由元信息或路径判断是否需要内边距容器
-// 方案中提到 PageContainer 用于统一页边距、标题、返回按钮
-const hasContainer = computed(() => {
-  // 某些全屏页面（如首页的大轮播部分）可能不需要标准容器，这里默认开启
-  return route.meta?.hasContainer !== false
-})
-</script>
-
 <template>
-  <div class="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-    <!--
-      公共组件：全局导航栏
-      功能：区分前台/后台，展示 logo、菜单、用户头像/登录入口
-      依赖：Vue Router, Pinia (用户状态)
-    -->
-    <header class="sticky top-0 z-50 w-full shadow-sm bg-white/80 backdrop-blur-md dark:bg-gray-800/80">
-      <NavBar />
+  <div class="min-h-screen flex flex-col bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+        <!-- Logo -->
+        <router-link to="/" class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+            房
+          </div>
+          <span class="text-xl font-bold text-gray-800 hidden sm:block">易居二手房</span>
+        </router-link>
+
+        <!-- 中间导航菜单 (桌面端) -->
+        <nav class="hidden md:flex space-x-8">
+          <router-link
+            to="/"
+            class="text-gray-600 hover:text-blue-600 font-medium transition"
+            active-class="text-blue-600"
+          >
+            首页
+          </router-link>
+          <router-link
+            to="/houses"
+            class="text-gray-600 hover:text-blue-600 font-medium transition"
+            active-class="text-blue-600"
+          >
+            房源列表
+          </router-link>
+        </nav>
+
+        <!-- 右侧用户操作区 -->
+        <div class="flex items-center space-x-4">
+          <!-- 未登录状态 -->
+          <template v-if="!userStore.isLoggedIn">
+            <router-link to="/login" class="text-gray-600 hover:text-blue-600 font-medium">
+              登录
+            </router-link>
+            <router-link
+              to="/register"
+              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition font-medium"
+            >
+              注册
+            </router-link>
+          </template>
+
+          <!-- 已登录状态 -->
+          <template v-else>
+            <el-dropdown trigger="click" @command="handleCommand">
+              <div class="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded-md transition">
+                <el-avatar :size="32" :src="userStore.avatar || defaultAvatar" />
+                <span class="text-gray-700 font-medium hidden sm:block">{{ userStore.username }}</span>
+                <el-icon class="text-gray-400"><arrow-down /></el-icon>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="center">
+                    <el-icon><user /></el-icon> 个人中心
+                  </el-dropdown-item>
+                  <el-dropdown-item command="favorites" v-if="userStore.role !== 2">
+                    <el-icon><star /></el-icon> 我的收藏
+                  </el-dropdown-item>
+                  <el-dropdown-item command="publish" v-if="userStore.role === 2">
+                    <el-icon><edit /></el-icon> 发布房源
+                  </el-dropdown-item>
+                  <el-dropdown-item command="my-houses" v-if="userStore.role === 2">
+                    <el-icon><list /></el-icon> 我的房源
+                  </el-dropdown-item>
+                  <el-dropdown-item divided command="logout" class="text-red-500">
+                    <el-icon><switch-button /></el-icon> 退出登录
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </div>
+      </div>
     </header>
 
-    <!--
-      主内容区域
-      使用 flex-1 确保内容不足一屏时，footer 依然保持在底部
-    -->
-    <main class="flex-1 w-full">
-      <transition name="fade" mode="out-in">
-        <router-view>
-          <house-list-grid/>
-        </router-view>
-      </transition>
+    <!-- 主要内容区域 -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </main>
 
-    <!--
-      公共组件：全局页脚
-      功能：展示版权、联系方式、协议链接
-    -->
-    <footer class="w-full bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-      <Footer />
+    <!-- 底部版权栏 -->
+    <footer class="bg-white border-t mt-auto">
+      <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm text-gray-500">
+          <div>
+            <h4 class="font-bold text-gray-700 mb-2">关于易居</h4>
+            <p>专业的二手房交易平台，为您提供真实、高效的房源信息。</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-gray-700 mb-2">联系方式</h4>
+            <p>客服电话：400-123-4567</p>
+            <p>邮箱：support@yiju.com</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-gray-700 mb-2">友情链接</h4>
+            <div class="space-x-2">
+              <a href="#" class="hover:text-blue-600">政府官网</a>
+              <span>|</span>
+              <a href="#" class="hover:text-blue-600">房产资讯</a>
+            </div>
+          </div>
+        </div>
+        <div class="border-t mt-6 pt-6 text-center text-xs text-gray-400">
+          &copy; {{ new Date().getFullYear() }} 易居二手房交易平台。All rights reserved.
+        </div>
+      </div>
     </footer>
   </div>
 </template>
 
+<script setup>
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  ArrowDown, User, Star, Edit, List, SwitchButton
+} from '@element-plus/icons-vue'
+import useUserStore from '@/stores/user.js'
+
+const router = useRouter()
+const userStore = useUserStore()
+
+// 默认头像
+const defaultAvatar = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
+
+// 处理下拉菜单命令
+const handleCommand = async (command) => {
+  switch (command) {
+    case 'center':
+      router.push('/user/center')
+      break
+    case 'favorites':
+      router.push('/user/favorites')
+      break
+    case 'publish':
+      router.push('/publish-house')
+      break
+    case 'my-houses':
+      router.push('/user/my-houses')
+      break
+    case 'logout':
+      try {
+        await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        })
+        userStore.logout() // 调用 store 的 logout 动作
+        ElMessage.success('退出成功')
+        router.push('/')
+      } catch {
+        // 取消退出
+      }
+      break
+  }
+}
+</script>
+
 <style scoped>
-/* TailwindCss4 通常不需要额外写 CSS，但为了过渡动画更平滑，可保留少量自定义样式 */
+/* 页面切换动画 */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
