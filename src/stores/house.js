@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import api from '@/utils/request.js' // 确保你的 request.js 导出的是配置好的 axios 实例
-import { ElMessage, ElNotification } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 export const useHouseStore = defineStore('house', () => {
   // --- State (使用 ref 定义) ---
@@ -25,7 +25,18 @@ export const useHouseStore = defineStore('house', () => {
       return res
     } catch (error) {
       console.error('获取房源列表失败', error)
-      ElMessage.error(error.response?.data?.detail || '获取房源列表失败')
+      ElMessage.error(error.response?.data?.message || '获取房源列表失败')
+      throw error
+    }
+  }
+
+  // 条件筛选房源列表
+  const queryHouseList = async (params={})=>{
+    try {
+      return await api.post('/houses/query', params)
+    } catch (error) {
+      console.error('条件查询房源列表失败', error)
+      ElMessage.error(error.response?.data?.message || '获取房源列表失败')
       throw error
     }
   }
@@ -256,6 +267,7 @@ export const useHouseStore = defineStore('house', () => {
     toggleFavorite,
     fetchHouseReviews,
     createHouseReview,
+    queryHouseList
   }
 }, {
   persist: {

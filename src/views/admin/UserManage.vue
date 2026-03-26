@@ -24,12 +24,13 @@
     <el-card shadow="never" class="table-card">
       <el-table
         v-loading="loading"
+        :key="userList.length"
         :data="userList"
         border
         style="width: 100%"
         header-cell-class-name="table-header-gray"
       >
-        <el-table-column prop="user_id" label="ID" width="80" align="center" />
+        <el-table-column prop="userId" label="ID" width="80" align="center" />
         <el-table-column prop="username" label="用户名" min-width="120" />
         <el-table-column prop="phone" label="联系电话" width="120" />
 
@@ -42,28 +43,18 @@
           </template>
         </el-table-column>
 
-        <!-- 状态列 -->
-        <el-table-column label="状态" width="100" align="center">
-          <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'danger'">
-              {{ row.status === 1 ? '正常' : '已冻结' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-
-        <el-table-column prop="create_time" label="注册时间" width="180" align="center" />
+        <el-table-column prop="createTime" label="注册时间" width="180" align="center" />
 
         <!-- 操作列 -->
         <el-table-column label="操作" width="150" align="center" fixed="right">
           <template #default="{ row }">
             <el-button
               link
-              :type="row.status === 1 ? 'warning' : 'success'"
-              @click="handleStatusChange(row)"
+              type="warning"
+              @click="deleteUser(row.userId)"
             >
-              {{ row.status === 1 ? '冻结' : '解封' }}
+              删除
             </el-button>
-            <!-- 可根据需求添加删除按钮，需二次确认 -->
           </template>
         </el-table-column>
       </el-table>
@@ -89,17 +80,19 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // 假设已封装好 axios 实例
 import request from '@/utils/request'
+import useAdminStore from '@/stores/admin.js'
+import useUserStore from '@/stores/user.js'
 
 // --- 状态定义 ---
 const loading = ref(false)
 const userList = ref([])
 const total = ref(0)
-
-const queryParams = reactive({
+const userStore = useUserStore()
+const queryParams = ref({
   page: 1,
   pageSize: 10,
   username: '',
-  role: null
+  role: userStore.userInfo.role
 })
 
 // --- 方法定义 ---
@@ -116,19 +109,17 @@ const getRoleType = (role) => {
   return map[role] || 'info'
 }
 
+const adminStore = useAdminStore()
 // 获取用户列表
 const fetchUserList = async () => {
   loading.value = true
   try {
-    // 对应后端接口：GET /api/v1/admin/users/list (需在 backend 实现)
-    // 这里模拟请求结构，实际请替换为真实接口路径
-    const { data } = await request.get('/admin/users/list', { params: queryParams })
-
-    // 假设后端返回格式：{ code: 200, data: { list: [...], total: 100 } }
-    userList.value = data.list || []
-    total.value = data.total || 0
+    const res = await adminStore.getUsers(queryParams.value)
+    userList.value = [...(res.data.data?.users || [])]
+    console.log('userList updated:', userList.value)
+    total.value = res.data.data?.total || 0
   } catch (error) {
-    ElMessage.error('获取用户列表失败')
+    ElMessage.error('获取用户列表失败' + error)
   } finally {
     loading.value = false
   }
@@ -147,36 +138,24 @@ const resetQuery = () => {
   handleSearch()
 }
 
-// 切换用户状态 (冻结/解封)
-const handleStatusChange = (row) => {
-  const actionText = row.status === 1 ? '冻结' : '解封'
-  const newStatus = row.status === 1 ? 0 : 1
-
-  ElMessageBox.confirm(
-    `确定要${actionText}用户 "${row.username}" 吗？`,
-    '警告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
-  ).then(async () => {
-    try {
-      // 对应后端接口：PUT /api/v1/admin/users/status
-      await request.put(`/admin/users/${row.user_id}/status`, { status: newStatus })
-
-      ElMessage.success(`${actionText}成功`)
-      fetchUserList() // 刷新列表
-    } catch (error) {
-      ElMessage.error(`${actionText}失败`)
-    }
-  }).catch(() => {})
-}
-
 // 初始化加载
 onMounted(() => {
   fetchUserList()
 })
+
+// 删除用户
+const deleteUser = async (userId)=>{
+  loading.value = true
+  console.log(userId)
+  try {
+    const res = await adminStore.delUser(userId)
+    ElMessage.success(res.data.message)
+  } catch (error) {
+    ElMessage.error('删除用户失败,请联系管理员进行级联删除')
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <style scoped lang="scss">

@@ -89,8 +89,8 @@ const fetchBanners = async () => {
     // const res = await getBannerList()
     // banners.value = res.data
     banners.value = [
-      { image: 'https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image', title: '安心购房，从这里开始', description: '海量真实房源，专业顾问服务' },
-      { image: 'https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image', title: '新上好房', description: '精选优质小区，限时优惠' }
+      { image: 'https://placehold.co/800x600/d4edda/155724?text=Cozy+Bedroom', title: '安心购房，从这里开始', description: '海量真实房源，专业顾问服务' },
+      { image: 'https://placehold.co/800x600/fff3cd/856404?text=Open+Kitchen', title: '新上好房', description: '精选优质小区，限时优惠' }
     ]
   } catch (error) {
     console.error('Failed to fetch banners', error)

@@ -14,7 +14,7 @@
           </el-form-item>
 
           <el-form-item label="户型">
-            <el-select v-model="filters.houseType" placeholder="全部户型" clearable class="w-32">
+            <el-select v-model="filters.house_type" placeholder="全部户型" clearable class="w-32">
               <el-option label="1室" value="1室" />
               <el-option label="2室" value="2室" />
               <el-option label="3室" value="3室" />
@@ -24,20 +24,11 @@
 
           <el-form-item label="价格">
             <div class="flex items-center gap-2">
-              <el-input-number v-model="filters.minPrice" :min="0" placeholder="最低" class="w-24" controls-position="right" />
+              <el-input-number v-model="filters.min_price" :min="0" placeholder="最低" class="w-24" controls-position="right" />
               <span>-</span>
-              <el-input-number v-model="filters.maxPrice" :min="0" placeholder="最高" class="w-24" controls-position="right" />
+              <el-input-number v-model="filters.max_price" :min="0" placeholder="最高" class="w-24" controls-position="right" />
               <span class="text-gray-500 text-sm">万</span>
             </div>
-          </el-form-item>
-
-          <el-form-item label="排序">
-            <el-select v-model="filters.sortBy" class="w-32">
-              <el-option label="默认排序" value="default" />
-              <el-option label="价格从低到高" value="price_asc" />
-              <el-option label="价格从高到低" value="price_desc" />
-              <el-option label="最新上架" value="newest" />
-            </el-select>
           </el-form-item>
 
           <el-form-item>
@@ -60,14 +51,14 @@
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div
           v-for="house in houseList"
-          :key="house.house_id"
+          :key="house.houseId"
           class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer overflow-hidden group"
-          @click="goToDetail(house.house_id)"
+          @click="goToDetail(house.houseId)"
         >
           <!-- 房源图片 -->
           <div class="relative h-48 bg-gray-200 overflow-hidden">
             <img
-              :src="house.coverImage || 'https://via.placeholder.com/300x200?text=No+Image'"
+              :src="house.imageUrls[0].imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'"
               :alt="house.title"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -90,9 +81,9 @@
                 <span class="text-red-600 font-bold text-xl">{{ house.price }}</span>
                 <span class="text-red-600 text-sm">万</span>
               </div>
-              <div class="text-xs text-gray-500 border border-gray-200 px-1.5 py-0.5 rounded">
-                {{ house.house_type }}
-              </div>
+                <el-tag :type="getStatusType(house.saleStatus)" size="small">
+                  {{ getStatusText(house.saleStatus) }}
+                </el-tag>
             </div>
           </div>
         </div>
@@ -117,7 +108,6 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import useHouseStore from '@/stores/house.js'
 
 const router = useRouter()
@@ -131,16 +121,15 @@ const total = ref(0)
 // 筛选条件
 const filters = reactive({
   district: '',
-  houseType: '',
-  minPrice: null,
-  maxPrice: null,
-  sortBy: 'default'
+  house_type: '',
+  min_price: null,
+  max_price: null,
 })
 
 // 分页配置
 const pagination = reactive({
   page: 1,
-  pageSize: 12
+  pageSize: 10
 })
 
 // 获取房源列表
@@ -161,11 +150,12 @@ const fetchHouseList = async () => {
       }
     })
 
-    // 调用 API (根据设计方案中的接口路径)
-    const response = await axios.get('/api/v1/houses', { params })
+    // 调用 API
+    const response = await houseStore.queryHouseList(params)
+    console.log(response.data.data)
 
     if (response.data.code === 200) {
-      houseList.value = response.data.data.list
+      houseList.value = response.data.data.houses
       total.value = response.data.data.total
     }
   } catch (error) {
@@ -175,7 +165,15 @@ const fetchHouseList = async () => {
     loading.value = false
   }
 }
-
+// 辅助函数：状态文本映射 (对应数据库设计)
+const getStatusText = (status) => {
+  const map = { 1: '在售', 2: '已售', 3: '已下架' };
+  return map[status] || '未知';
+};
+const getStatusType = (status) => {
+  const map = { 1: 'success', 2: 'info', 3: 'warning' };
+  return map[status] || 'info';
+};
 // 搜索处理
 const handleSearch = () => {
   pagination.page = 1 // 重置页码
@@ -185,10 +183,9 @@ const handleSearch = () => {
 // 重置筛选
 const resetFilters = () => {
   filters.district = ''
-  filters.houseType = ''
-  filters.minPrice = null
-  filters.maxPrice = null
-  filters.sortBy = 'default'
+  filters.house_type = ''
+  filters.min_price = null
+  filters.max_price = null
   handleSearch()
 }
 

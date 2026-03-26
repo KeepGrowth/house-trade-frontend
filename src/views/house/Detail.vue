@@ -24,9 +24,9 @@
 
           <!-- 1. 图片轮播 -->
           <el-card class="mb-6 overflow-hidden" shadow="hover">
-            <el-carousel :interval="4000" height="400px" v-if="house.images && house.images.length > 0">
-              <el-carousel-item v-for="(img, index) in house.images" :key="index">
-                <img :src="img.image_url || 'https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image' "
+            <el-carousel :interval="4000" height="400px" v-if="house.imageUrls && house.imageUrls.length > 0">
+              <el-carousel-item v-for="(img, index) in house.imageUrls" :key="index">
+                <img :src="img.imageUrl || 'https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image' "
                      class="w-full h-full object-cover" alt="" />
               </el-carousel-item>
             </el-carousel>
@@ -139,7 +139,7 @@
               <span class="font-bold">房东信息</span>
             </template>
             <div class="flex items-center mb-4">
-              <el-avatar :size="50" :src="landlord.avatar" class="mr-3" />
+              <el-avatar :size="50" src="https://ui-avatars.com/api/?name=John+Doe&background=random&color=fff" class="mr-3" />
               <div>
                 <div class="font-bold text-lg">{{ landlord.username }}</div>
                 <div class="text-xs text-gray-500">认证房东</div>

@@ -35,21 +35,21 @@
         style="width: 100%"
         header-cell-class-name="bg-gray-50"
       >
-        <el-table-column prop="house_id" label="ID" width="80" />
+        <el-table-column prop="houseId" label="ID" width="80" />
         <el-table-column prop="title" label="房源标题" min-width="180" show-overflow-tooltip />
         <el-table-column prop="price" label="价格(万)" width="100">
           <template #default="{ row }">
             <span class="text-red-500 font-semibold">{{ row.price }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="house_type" label="户型" width="100" />
+        <el-table-column prop="houseType" label="户型" width="100" />
         <el-table-column prop="area" label="面积(㎡)" width="100" />
         <el-table-column prop="district" label="区域" width="120" />
 
         <el-table-column label="审核状态" width="120">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.audit_status)">
-              {{ getStatusText(row.audit_status) }}
+            <el-tag :type="getStatusType(row.auditStatus)">
+              {{ getStatusText(row.auditStatus) }}
             </el-tag>
           </template>
         </el-table-column>
@@ -57,7 +57,7 @@
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button
-              v-if="row.audit_status === 0"
+              v-if="row.auditStatus === 0"
               type="success"
               size="small"
               @click="handleAudit(row, 1)"
@@ -65,7 +65,7 @@
               通过
             </el-button>
             <el-button
-              v-if="row.audit_status === 0"
+              v-if="row.auditStatus === 0"
               type="danger"
               size="small"
               @click="openRejectDialog(row)"
@@ -73,7 +73,7 @@
               驳回
             </el-button>
             <el-button
-              v-if="row.audit_status !== 0"
+              v-if="row.auditStatus !== 0"
               type="info"
               size="small"
               plain
@@ -114,7 +114,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="rejectDialog.visible = false">取消</el-button>
-          <el-button type="danger" @click="confirmReject" :loading="submitting">确认驳回</el-button>
+          <el-button type="danger" @click="confirmReject(row)" :loading="submitting">确认驳回</el-button>
         </span>
       </template>
     </el-dialog>
@@ -124,7 +124,9 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import axios from 'axios' // 假设已配置好拦截器
+import axios from 'axios'
+import useAdminStore from '@/stores/admin.js'
+import useHouseStore from '@/stores/house.js' // 假设已配置好拦截器
 
 // --- 状态定义 ---
 const loading = ref(false)
@@ -167,33 +169,19 @@ const getStatusText = (status) => {
   const map = { 0: '待审核', 1: '已通过', 2: '已驳回' }
   return map[status] || '未知'
 }
-
+const adminStore = useAdminStore()
 // 获取审核列表 (对应接口: GET /admin/audit/list)
 const fetchAuditList = async () => {
   loading.value = true
   try {
-    // 模拟请求，实际项目中请替换为真实 API 路径
-    // const res = await axios.get('/api/v1/admin/audit/list', { params: { ...queryParams, ...pagination } })
-
-    // --- Mock 数据演示开始 ---
-    await new Promise(resolve => setTimeout(resolve, 500))
-    const mockData = Array.from({ length: 5 }).map((_, i) => ({
-      house_id: 1001 + i,
-      title: `阳光花园 ${i+1}栋 精装三房`,
-      price: (200 + i * 10).toFixed(2),
-      house_type: '3室2厅',
-      area: 90 + i * 5,
-      district: '朝阳区',
-      audit_status: i === 0 ? 0 : (i % 2 === 0 ? 1 : 2) // 混合状态演示
-    }))
-    // --- Mock 数据演示结束 ---
-
-    tableData.value = mockData
-    pagination.total = 25 // 模拟总数
-    pendingCount.value = mockData.filter(item => item.audit_status === 0).length
+    const res = await adminStore.getPendingHouses({ ...queryParams, ...pagination })
+    console.log(res.data)
+    tableData.value = res.data.data?.houses
+    pagination.total = res.data.data?.total // 模拟总数
+    pendingCount.value = res.data.data.houses.filter(item => item.auditStatus === 0).length
 
   } catch (error) {
-    ElMessage.error('获取房源列表失败')
+    ElMessage.error('获取房源列表失败' + error)
   } finally {
     loading.value = false
   }
@@ -202,11 +190,11 @@ const fetchAuditList = async () => {
 // 打开驳回弹窗
 const openRejectDialog = (row) => {
   rejectForm.reason = ''
-  rejectDialog.value.currentHouseId = row.house_id
+  rejectDialog.value.currentHouseId = row.houseId
   rejectDialog.value.visible = true
 }
 
-// 确认驳回 (对应接口: POST /admin/audit/verify)
+
 const confirmReject = async () => {
   if (!rejectForm.reason.trim()) {
     ElMessage.warning('请填写驳回原因')
@@ -215,12 +203,11 @@ const confirmReject = async () => {
 
   submitting.value = true
   try {
-    // 实际调用: await axios.post('/api/v1/admin/audit/verify', { house_id: id, status: 2, reason: reason })
-    await new Promise(resolve => setTimeout(resolve, 800)) // 模拟网络延迟
+    await adminStore.verifyHouse(rejectDialog.value.currentHouseId, 2)
 
     ElMessage.success('房源已驳回')
     rejectDialog.value.visible = false
-    fetchAuditList() // 刷新列表
+    await fetchAuditList() // 刷新列表
   } catch (error) {
     ElMessage.error('操作失败')
   } finally {
@@ -228,20 +215,20 @@ const confirmReject = async () => {
   }
 }
 
+const houseStore = useHouseStore()
 // 直接通过 (对应接口: POST /admin/audit/verify)
 const handleAudit = async (row, status) => {
   try {
     await ElMessageBox.confirm(`确认通过房源 "${row.title}" 吗？`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning',
+      type: 'warning'
     })
 
-    // 实际调用: await axios.post('/api/v1/admin/audit/verify', { house_id: row.house_id, status: 1 })
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await adminStore.verifyHouse(row.houseId, 1)
 
     ElMessage.success('审核通过')
-    fetchAuditList()
+    await fetchAuditList()
   } catch (err) {
     if (err !== 'cancel') ElMessage.error('操作失败')
   }
@@ -264,6 +251,7 @@ onMounted(() => {
   background-color: #f5f7fa;
   min-height: 100%;
 }
+
 :deep(.el-table th) {
   font-weight: 600;
   color: #333;

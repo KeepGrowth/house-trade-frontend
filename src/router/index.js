@@ -119,8 +119,8 @@ const router = createRouter({
 // 全局前置守卫：实现方案中的"路由权限控制"
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
-  const token = userStore.token
-  const role = userStore.userInfo.role // 1-购房者, 2-房东, 3-管理员
+  const token = userStore.token || ''
+  const role = userStore.userInfo?.role || ''// 1-购房者, 2-房东, 3-管理员
 
   // 设置页面标题
   document.title = to.meta.title ? `${to.meta.title} - 二手房交易平台` : '二手房交易平台'

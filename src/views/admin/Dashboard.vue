@@ -56,8 +56,7 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
 import * as echarts from 'echarts';
-import axios from 'axios'; // 假设已配置好 axios 实例
-// import { User, House, Sold } from '@element-plus/icons-vue'; // 图标
+import useDashBoardStore from '@/stores/dashboard.js'
 
 // 响应式引用
 const userTrendChart = ref(null);
@@ -68,7 +67,6 @@ const houseStatusChart = ref(null);
 const summaryData = ref([
   { title: '总用户数', value: '1,204', icon: 'User' },
   { title: '总房源数', value: '856', icon: 'House' },
-  { title: '本月成交', value: '42', icon: 'Sold' },
   { title: '待审核房源', value: '5', icon: 'Warning' }
 ]);
 
@@ -132,21 +130,22 @@ const handleResize = () => {
   echarts.getInstanceByDom(districtChart.value)?.resize();
   echarts.getInstanceByDom(houseStatusChart.value)?.resize();
 };
-
+const dashboardStore = useDashBoardStore()
 onMounted(async () => {
   await nextTick();
   initCharts();
   window.addEventListener('resize', handleResize);
 
   // TODO: 调用后端接口 /api/v1/admin/stats 获取真实数据并更新图表 option
-  // try {
-  //   const res = await axios.get('/api/v1/admin/stats');
-  //   if(res.data.code === 200) {
-  //     // 使用 res.data.data 更新上述图表配置
-  //   }
-  // } catch (error) {
-  //   console.error("获取统计数据失败", error);
-  // }
+  try {
+    const res = await dashboardStore.getIndicator();
+    if(res.data.code === 200) {
+      // 使用 res.data.data 更新上述图表配置
+      console.log(res.data.code)
+    }
+  } catch (error) {
+    console.error("获取统计数据失败", error);
+  }
 });
 </script>
 

@@ -95,16 +95,8 @@
           </div>
           <div>
             <h4 class="font-bold text-gray-700 mb-2">联系方式</h4>
-            <p>客服电话：400-123-4567</p>
+            <p>客服电话：12345678</p>
             <p>邮箱：support@yiju.com</p>
-          </div>
-          <div>
-            <h4 class="font-bold text-gray-700 mb-2">友情链接</h4>
-            <div class="space-x-2">
-              <a href="#" class="hover:text-blue-600">政府官网</a>
-              <span>|</span>
-              <a href="#" class="hover:text-blue-600">房产资讯</a>
-            </div>
           </div>
         </div>
         <div class="border-t mt-6 pt-6 text-center text-xs text-gray-400">

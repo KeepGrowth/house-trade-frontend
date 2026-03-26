@@ -21,20 +21,17 @@
     <!-- 评价列表表格 -->
     <el-card class="table-card">
       <el-table :data="reviewList" style="width: 100%" v-loading="loading">
-        <el-table-column prop="review_id" label="ID" width="80" />
-
-        <!-- 房源信息 -->
-        <el-table-column label="房源信息">
+        <el-table-column prop="reviewId" label="ID" width="80" />
+        <el-table-column label="房源Id">
           <template #default="scope">
             <div class="house-info">
-              <span class="title">{{ scope.row.house_title }}</span>
-              <span class="price">¥{{ scope.row.house_price }}万</span>
+              <span class="title">{{ scope.row.houseId }}</span>
             </div>
           </template>
         </el-table-column>
 
         <!-- 用户信息 -->
-        <el-table-column prop="username" label="评价用户" width="120" />
+        <el-table-column prop="userId" label="评价用户ID" width="120" />
 
         <!-- 评分 -->
         <el-table-column label="评分" width="100">
@@ -44,7 +41,7 @@
         </el-table-column>
 
         <!-- 评价内容 (可折叠或省略显示) -->
-        <el-table-column prop="content" label="评价内容" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="content" label="评价内容" min-width="100" show-overflow-tooltip />
 
         <!-- 状态 -->
         <el-table-column label="状态" width="100">
@@ -56,7 +53,7 @@
         </el-table-column>
 
         <!-- 操作列 -->
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" width="200" fixed="right">
           <template #default="scope">
             <el-button
               size="small"
@@ -89,6 +86,8 @@ import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 // 假设已封装好 axios 实例
 import request from '@/utils/request';
+import useAdminStore from '@/stores/admin.js'
+import useReviewStore from '@/stores/reviews.js'
 
 // 状态定义
 const loading = ref(false);
@@ -102,20 +101,22 @@ const queryParams = reactive({
   status: null
 });
 
+const adminStore = useAdminStore()
+const reviewStore = useReviewStore()
 // 获取评价列表
 const fetchReviews = async () => {
   loading.value = true;
   try {
-    const res = await request.get('/admin/reviews/list', {
-      params: {
+    const res = await adminStore.getReviews({
+
         page: currentPage.value,
-        limit: pageSize.value,
+        pageSize: pageSize.value,
         ...queryParams
-      }
+
     });
     // 假设后端返回格式 { code: 200, data: { list: [], total: 100 } }
-    reviewList.value = res.data.list;
-    total.value = res.data.total;
+    reviewList.value = res.data.data.reviews;
+    total.value = res.data.data.total;
   } catch (error) {
     ElMessage.error('加载评价列表失败');
   } finally {
@@ -129,7 +130,7 @@ const toggleStatus = async (row) => {
   const actionText = newStatus === 0 ? '隐藏' : '恢复';
 
   try {
-    await request.put(`/admin/reviews/${row.review_id}/status`, { status: newStatus });
+    await reviewStore.changeStatus(row.reviewId);
     ElMessage.success(`${actionText}成功`);
     row.status = newStatus; // 本地更新
   } catch (error) {
@@ -146,9 +147,9 @@ const deleteReview = async (row) => {
       type: 'warning',
     });
 
-    await request.delete(`/admin/reviews/${row.review_id}`);
+    await reviewStore.delReview(row.reviewId);
     ElMessage.success('删除成功');
-    fetchReviews(); // 刷新列表
+    await fetchReviews(); // 刷新列表
   } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('删除失败');

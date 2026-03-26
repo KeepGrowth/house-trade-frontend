@@ -35,7 +35,7 @@ const formattedPrice = computed(() => {
 
 // 处理点击事件，透传 house_id
 const handleCardClick = () => {
-  emit('click', props.data.house_id);
+  emit('click', props.data.houseId);
 };
 </script>
 
@@ -47,7 +47,7 @@ const handleCardClick = () => {
     <!-- 图片区域 -->
     <div class="relative aspect-[4/3] overflow-hidden bg-gray-200">
       <img
-        :src="data.image_url || 'https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image'"
+        :src="data.imageUrls[0].imageUrl || 'https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image'"
         :alt="data.title"
         class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
@@ -92,7 +92,7 @@ const handleCardClick = () => {
       <div class="flex justify-between items-center text-gray-600 text-sm mt-2">
         <div class="flex items-center gap-1">
           <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-          <span>{{ data.houseType }}</span>
+          <span>{{ data.community }}</span>
         </div>
         <div class="w-px h-4 bg-gray-200"></div>
 <!--        出售状态-->
