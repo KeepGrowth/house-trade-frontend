@@ -1,24 +1,24 @@
 <template>
   <div class="min-h-screen bg-gray-50 pb-10">
     <!-- 顶部筛选栏 -->
-    <div class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="bg-white shadow-sm top-0 z-10">
       <div class="container mx-auto px-4 py-4">
         <el-form :inline="true" :model="filters" class="demo-form-inline">
-          <el-form-item label="区域">
+          <el-form-item label="区域"   style="width: 200px;">
             <el-select v-model="filters.district" placeholder="全部区域" clearable class="w-32">
-              <el-option label="朝阳区" value="朝阳区" />
               <el-option label="海淀区" value="海淀区" />
-              <el-option label="东城区" value="东城区" />
-              <el-option label="西城区" value="西城区" />
+              <el-option label="锦江区" value="锦江区" />
+              <el-option label="徐汇区" value="徐汇区" />
+              <el-option label="福田区" value="福田区" />
             </el-select>
           </el-form-item>
 
-          <el-form-item label="户型">
-            <el-select v-model="filters.house_type" placeholder="全部户型" clearable class="w-32">
-              <el-option label="1室" value="1室" />
-              <el-option label="2室" value="2室" />
-              <el-option label="3室" value="3室" />
-              <el-option label="4室+" value="4室+" />
+          <el-form-item label="户型"   style="width: 200px;">
+            <el-select v-model="filters.houseTypeLabel" placeholder="全部户型" clearable class="w-32">
+              <el-option label="1室1厅" value="1" />
+              <el-option label="2室1厅" value="2" />
+              <el-option label="2室2厅" value="3" />
+              <el-option label="4室及以上" value="4" />
             </el-select>
           </el-form-item>
 
@@ -94,7 +94,7 @@
         <el-pagination
           v-model:current-page="pagination.page"
           v-model:page-size="pagination.pageSize"
-          :page-sizes="[12, 24, 48]"
+          :page-sizes="[10,20,30,40]"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
           @size-change="handleSizeChange"
@@ -155,8 +155,8 @@ const fetchHouseList = async () => {
     console.log(response.data.data)
 
     if (response.data.code === 200) {
-      houseList.value = response.data.data.houses
-      total.value = response.data.data.total
+      houseList.value = response.data?.data.houses || []
+      total.value = response.data?.data.total || 0
     }
   } catch (error) {
     console.error('获取房源列表失败:', error)

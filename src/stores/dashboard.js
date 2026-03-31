@@ -13,8 +13,19 @@ export const useDashBoardStore = defineStore('dashboard', () => {
       throw error
     }
   }
+
+  // 获取AI统计信息
+  const getAiStats = async ()=>{
+    try {
+      return await api.get(`/dashboard/ai-stats`,)
+    } catch (error) {
+      console.error('评论操作失败', error)
+      throw error
+    }
+  }
   return {
-    getIndicator
+    getIndicator,
+    getAiStats
   }
 }, {
   // 持久化配置

@@ -127,7 +127,7 @@ const handleRegister = async () => {
           role:formData.role
         })
       } catch (error: any) {
-        ElMessage.error(error.response?.data?.msg || '网络请求失败')
+        ElMessage.error(error.response?.data?.message || '网络请求失败')
       } finally {
         loading.value = false
       }

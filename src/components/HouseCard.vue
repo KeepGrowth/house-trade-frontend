@@ -92,14 +92,14 @@ const handleCardClick = () => {
       <div class="flex justify-between items-center text-gray-600 text-sm mt-2">
         <div class="flex items-center gap-1">
           <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-          <span>{{ data.community }}</span>
+          <span>{{ data.houseTypeLabel }}</span>
         </div>
         <div class="w-px h-4 bg-gray-200"></div>
 <!--        出售状态-->
         <div class="flex items-center gap-1">
-          <el-tag type="success" :title="data.sale_status" v-if="data.saleStatus===1">在售</el-tag>
-          <el-tag type="warning" :title="data.sale_status" v-else-if="data.saleStatus===2">已售</el-tag>
-          <el-tag type="danger" :title="data.sale_status" v-else>已下架</el-tag>
+          <el-tag type="success"  v-if="data.saleStatus===1">在售</el-tag>
+          <el-tag type="warning" v-else-if="data.saleStatus===2">已售</el-tag>
+          <el-tag type="danger" v-else>已下架</el-tag>
         </div>
         <div class="w-px h-4 bg-gray-200"></div>
         <div class="flex items-center gap-1">

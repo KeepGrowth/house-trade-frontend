@@ -2,6 +2,13 @@
   <div class="dashboard-container p-6">
     <!-- 页面标题 -->
     <h2 class="text-2xl font-bold mb-6 text-gray-800">数据看板</h2>
+    <el-alert
+      type="success"
+      :closable="false"
+      effect="dark"
+      style="margin-bottom: 15px"
+    >AI助手提醒：{{ aiText }}
+    </el-alert>
 
     <!-- 核心指标卡片 (可选补充) -->
     <el-row :gutter="20" class="mb-6">
@@ -12,7 +19,9 @@
               <p class="text-gray-500 text-sm">{{ item.title }}</p>
               <p class="text-2xl font-bold mt-2">{{ item.value }}</p>
             </div>
-            <el-icon :size="30" color="#409EFF"><component :is="item.icon" /></el-icon>
+            <el-icon :size="30" color="#409EFF">
+              <component :is="item.icon" />
+            </el-icon>
           </div>
         </el-card>
       </el-col>
@@ -54,26 +63,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
-import * as echarts from 'echarts';
+import { ref, onMounted, nextTick } from 'vue'
+import * as echarts from 'echarts'
 import useDashBoardStore from '@/stores/dashboard.js'
 
 // 响应式引用
-const userTrendChart = ref(null);
-const districtChart = ref(null);
-const houseStatusChart = ref(null);
+const userTrendChart = ref(null)
+const districtChart = ref(null)
+const houseStatusChart = ref(null)
 
 // 模拟核心指标数据 (实际应从后端获取)
 const summaryData = ref([
   { title: '总用户数', value: '1,204', icon: 'User' },
   { title: '总房源数', value: '856', icon: 'House' },
   { title: '待审核房源', value: '5', icon: 'Warning' }
-]);
+])
 
 // 初始化图表函数
 const initCharts = () => {
   // 1. 注册用户趋势图 (折线图)
-  const trendChart = echarts.init(userTrendChart.value);
+  const trendChart = echarts.init(userTrendChart.value)
   trendChart.setOption({
     tooltip: { trigger: 'axis' },
     xAxis: { type: 'category', data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'] },
@@ -85,10 +94,10 @@ const initCharts = () => {
       areaStyle: { opacity: 0.3 },
       itemStyle: { color: '#409EFF' }
     }]
-  });
+  })
 
   // 2. 区域房源占比 (饼图)
-  const districtChar = echarts.init(districtChart.value);
+  const districtChar = echarts.init(districtChart.value)
   districtChar.setOption({
     tooltip: { trigger: 'item' },
     legend: { top: '5%', left: 'center' },
@@ -105,10 +114,10 @@ const initCharts = () => {
         { value: 484, name: '东城区' }
       ]
     }]
-  });
+  })
 
   // 3. 房源状态统计 (柱状图)
-  const statusChart = echarts.init(houseStatusChart.value);
+  const statusChart = echarts.init(houseStatusChart.value)
   statusChart.setOption({
     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
     legend: {},
@@ -121,32 +130,48 @@ const initCharts = () => {
       barWidth: '40%',
       itemStyle: { color: '#67C23A' }
     }]
-  });
-};
+  })
+}
 
 // 监听窗口大小变化以自适应图表
 const handleResize = () => {
-  echarts.getInstanceByDom(userTrendChart.value)?.resize();
-  echarts.getInstanceByDom(districtChart.value)?.resize();
-  echarts.getInstanceByDom(houseStatusChart.value)?.resize();
-};
+  echarts.getInstanceByDom(userTrendChart.value)?.resize()
+  echarts.getInstanceByDom(districtChart.value)?.resize()
+  echarts.getInstanceByDom(houseStatusChart.value)?.resize()
+}
 const dashboardStore = useDashBoardStore()
-onMounted(async () => {
-  await nextTick();
-  initCharts();
-  window.addEventListener('resize', handleResize);
 
-  // TODO: 调用后端接口 /api/v1/admin/stats 获取真实数据并更新图表 option
+// 得到AI助手的整体分析。
+const aiText = ref('')
+const getAiText = async ()=>{
   try {
-    const res = await dashboardStore.getIndicator();
-    if(res.data.code === 200) {
+    const res = await dashboardStore.getAiStats()
+    if (res.data.code === 200) {
+      console.log(res.data.data.text)
+      aiText.value=res.data.data.text
+    }
+  } catch (error) {
+    console.error('获取统计数据失败', error)
+  }
+}
+onMounted(async () => {
+  await nextTick()
+  initCharts()
+  window.addEventListener('resize', handleResize)
+
+  // 调用后端接口 /dashboard 获取真实数据并更新图表 option
+  try {
+    const res = await dashboardStore.getIndicator()
+    if (res.data.code === 200) {
       // 使用 res.data.data 更新上述图表配置
       console.log(res.data.code)
     }
   } catch (error) {
-    console.error("获取统计数据失败", error);
+    console.error('获取统计数据失败', error)
   }
-});
+
+  await getAiText()
+})
 </script>
 
 <style scoped>
@@ -154,6 +179,7 @@ onMounted(async () => {
   background-color: #f5f7fa; /* 浅灰背景 */
   min-height: 100vh;
 }
+
 .stat-card:hover {
   transform: translateY(-5px);
   transition: transform 0.3s;

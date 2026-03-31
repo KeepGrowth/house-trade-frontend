@@ -58,7 +58,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div class="p-2 bg-gray-50 rounded">
                 <div class="text-gray-500 text-xs">户型</div>
-                <div class="font-semibold text-lg">{{ house.houseType }}</div>
+                <div class="font-semibold text-lg">{{ house.houseTypeLabel }}</div>
               </div>
               <div class="p-2 bg-gray-50 rounded">
                 <div class="text-gray-500 text-xs">面积</div>
@@ -74,7 +74,7 @@
               </div>
               <div class="p-2 bg-gray-50 rounded">
                 <div class="text-gray-500 text-xs">发布时间</div>
-                <div class="font-semibold text-sm mt-1">2023-10-01</div> <!-- 实际应从后端获取 -->
+                <div class="font-semibold text-sm mt-1">{{ formatTime(house.createTime) }}</div>
               </div>
             </div>
 
@@ -110,7 +110,7 @@
                   </div>
                 </div>
                 <p class="text-gray-600 text-sm">{{ review.content }}</p>
-                <div class="text-xs text-gray-400 mt-1">{{ review.create_time }}</div>
+                <div class="text-xs text-gray-400 mt-1">{{ formatTime(review.createTime) }}</div>
               </div>
             </div>
 
@@ -163,13 +163,14 @@
 </template>
 
 <script setup>
+
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Star, Warning, Phone } from '@element-plus/icons-vue'
 import useHouseStore from '@/stores/house.js'
 import useUserStore from '@/stores/user.js'
-
+import formatTime from '@/utils/date.js'
 const route = useRoute()
 const router = useRouter()
 const houseStore = useHouseStore()

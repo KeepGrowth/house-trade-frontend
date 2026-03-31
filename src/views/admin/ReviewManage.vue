@@ -6,7 +6,7 @@
         <el-form-item label="房源标题">
           <el-input v-model="queryParams.houseTitle" placeholder="搜索房源" />
         </el-form-item>
-        <el-form-item label="评价状态">
+        <el-form-item label="评价状态" style="width: 200px">
           <el-select v-model="queryParams.status" placeholder="全部">
             <el-option label="显示中" :value="1" />
             <el-option label="已隐藏" :value="0" />
@@ -82,61 +82,61 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref, reactive, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 // 假设已封装好 axios 实例
-import request from '@/utils/request';
+import request from '@/utils/request'
 import useAdminStore from '@/stores/admin.js'
 import useReviewStore from '@/stores/reviews.js'
 
 // 状态定义
-const loading = ref(false);
-const reviewList = ref([]);
-const currentPage = ref(1);
-const pageSize = ref(10);
-const total = ref(0);
+const loading = ref(false)
+const reviewList = ref([])
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
 
 const queryParams = reactive({
   houseTitle: '',
   status: null
-});
+})
 
 const adminStore = useAdminStore()
 const reviewStore = useReviewStore()
 // 获取评价列表
 const fetchReviews = async () => {
-  loading.value = true;
+  loading.value = true
   try {
     const res = await adminStore.getReviews({
 
-        page: currentPage.value,
-        pageSize: pageSize.value,
-        ...queryParams
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      ...queryParams
 
-    });
+    })
     // 假设后端返回格式 { code: 200, data: { list: [], total: 100 } }
-    reviewList.value = res.data.data.reviews;
-    total.value = res.data.data.total;
+    reviewList.value = res.data.data.reviews
+    total.value = res.data.data.total
   } catch (error) {
-    ElMessage.error('加载评价列表失败');
+    ElMessage.error('加载评价列表失败')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // 切换显示/隐藏状态
 const toggleStatus = async (row) => {
-  const newStatus = row.status === 1 ? 0 : 1;
-  const actionText = newStatus === 0 ? '隐藏' : '恢复';
+  const newStatus = row.status === 1 ? 0 : 1
+  const actionText = newStatus === 0 ? '隐藏' : '恢复'
 
   try {
-    await reviewStore.changeStatus(row.reviewId);
-    ElMessage.success(`${actionText}成功`);
-    row.status = newStatus; // 本地更新
+    await reviewStore.changeStatus(row.reviewId)
+    ElMessage.success(`${actionText}成功`)
+    row.status = newStatus // 本地更新
   } catch (error) {
-    ElMessage.error('操作失败');
+    ElMessage.error('操作失败')
   }
-};
+}
 
 // 删除评价
 const deleteReview = async (row) => {
@@ -144,44 +144,49 @@ const deleteReview = async (row) => {
     await ElMessageBox.confirm('确定要删除这条评价吗？', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning',
-    });
+      type: 'warning'
+    })
 
-    await reviewStore.delReview(row.reviewId);
-    ElMessage.success('删除成功');
-    await fetchReviews(); // 刷新列表
+    await reviewStore.delReview(row.reviewId)
+    ElMessage.success('删除成功')
+    await fetchReviews() // 刷新列表
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败');
+      ElMessage.error('删除失败')
     }
   }
-};
+}
 
 onMounted(() => {
-  fetchReviews();
-});
+  fetchReviews()
+})
 </script>
 
 <style scoped>
 .review-manage-container {
   padding: 20px;
 }
+
 .filter-card {
   margin-bottom: 20px;
 }
+
 .house-info {
   display: flex;
   flex-direction: column;
 }
+
 .house-info .title {
   font-weight: bold;
   color: #333;
 }
+
 .house-info .price {
   font-size: 12px;
   color: #f56c6c;
   margin-top: 4px;
 }
+
 .pagination-wrapper {
   margin-top: 20px;
   display: flex;

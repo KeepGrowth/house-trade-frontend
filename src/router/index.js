@@ -48,7 +48,7 @@ const routes = [
         path: 'user/center',
         name: 'UserCenter',
         component: () => import('@/views/user/Center.vue'),
-        meta: { title: '个人中心', requiresAuth: true, roles:[2] }
+        meta: { title: '个人中心', requiresAuth: true, roles:[1,2,3] }
       },
       {
         path: 'user/my-houses',

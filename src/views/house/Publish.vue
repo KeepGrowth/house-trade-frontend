@@ -38,21 +38,20 @@
           <el-col :span="12">
             <el-form-item label="户型" prop="house_type">
               <el-select v-model="formData.house_type" placeholder="选择户型" style="width: 100%">
-                <el-option label="1室1厅" value="1室1厅" />
-                <el-option label="2室1厅" value="2室1厅" />
-                <el-option label="2室2厅" value="2室2厅" />
-                <el-option label="3室2厅" value="3室2厅" />
-                <el-option label="4室及以上" value="4室及以上" />
+                <el-option label="1室1厅" value="1" />
+                <el-option label="2室1厅" value="2" />
+                <el-option label="2室2厅" value="3" />
+                <el-option label="4室及以上" value="4" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="所在区域" prop="district">
               <el-select v-model="formData.district" placeholder="选择区域" style="width: 100%">
-                <el-option label="朝阳区" value="朝阳区" />
                 <el-option label="海淀区" value="海淀区" />
-                <el-option label="东城区" value="东城区" />
-                <el-option label="西城区" value="西城区" />
+                <el-option label="锦江区" value="锦江区" />
+                <el-option label="徐汇区" value="徐汇区" />
+                <el-option label="福田区" value="福田区" />
                 <!-- 根据实际需求扩展 -->
               </el-select>
             </el-form-item>
