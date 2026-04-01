@@ -64,7 +64,7 @@
                 size="small"
                 type="danger"
                 plain
-                @click="handleRemoveFavorite(item.houseId)"
+                @click="handleRemoveFavorite(item.favoriteId)"
               >
                 取消收藏
               </el-button>
@@ -87,9 +87,6 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
 import useFavoriteStore from '@/stores/favorite.js'
-// 假设您有一个封装好的 request 实例或者直接在 pinia 中获取 token
-// import { useUserStore } from '@/stores/user'
-// const userStore = useUserStore()
 
 const router = useRouter()
 const loading = ref(false)
@@ -123,7 +120,7 @@ const handleRemoveFavorite = async (favoriteId) => {
     await ElMessageBox.confirm('确定要取消收藏该房源吗？', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
-      type: 'warning',
+      type: 'warning'
     })
 
     const response = await favoriteStore.removeFavorite(favoriteId)

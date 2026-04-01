@@ -139,7 +139,8 @@
               <span class="font-bold">房东信息</span>
             </template>
             <div class="flex items-center mb-4">
-              <el-avatar :size="50" src="https://ui-avatars.com/api/?name=John+Doe&background=random&color=fff" class="mr-3" />
+              <el-avatar :size="50" src="https://ui-avatars.com/api/?name=John+Doe&background=random&color=fff"
+                         class="mr-3" />
               <div>
                 <div class="font-bold text-lg">{{ landlord.username }}</div>
                 <div class="text-xs text-gray-500">认证房东</div>
@@ -171,6 +172,8 @@ import { Star, Warning, Phone } from '@element-plus/icons-vue'
 import useHouseStore from '@/stores/house.js'
 import useUserStore from '@/stores/user.js'
 import formatTime from '@/utils/date.js'
+import useFavoriteStore from '@/stores/favorite.js'
+
 const route = useRoute()
 const router = useRouter()
 const houseStore = useHouseStore()
@@ -216,13 +219,11 @@ const fetchHouseDetail = async () => {
   }
 }
 
+const favoriteStore = useFavoriteStore()
 const toggleFavorite = async () => {
-  // 这里需要集成登录校验逻辑
-  // if (!userStore.isLoggedIn) { ElMessage.warning('请先登录'); router.push('/login'); return; }
-
   try {
     // 对应方案中互动功能：收藏房源
-    // await axios.post('/api/v1/favorites', { house_id: house.value.house_id });
+    await favoriteStore.addFavorite(house.value.houseId)
     isFavorited.value = !isFavorited.value
     ElMessage.success(isFavorited.value ? '收藏成功' : '取消收藏')
   } catch (e) {
@@ -246,11 +247,11 @@ const submitReview = async () => {
     const newReview = await houseStore.createHouseReview(
       route.params.id,
       {
-        userId:userStore.userInfo.id,
-        houseId:route.params.id,
-        score:5,
-        content:newReviewContent.value,
-        status:1,
+        userId: userStore.userInfo.id,
+        houseId: route.params.id,
+        score: 5,
+        content: newReviewContent.value,
+        status: 1
       }
     )
 
