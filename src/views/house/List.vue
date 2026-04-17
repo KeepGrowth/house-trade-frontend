@@ -152,11 +152,10 @@ const fetchHouseList = async () => {
 
     // 调用 API
     const response = await houseStore.queryHouseList(params)
-    console.log(response.data.data)
 
     if (response.data.code === 200) {
-      houseList.value = response.data?.data.houses || []
-      total.value = response.data?.data.total || 0
+      houseList.value = response.data?.data.houses.filter(item => item.auditStatus === 1 && item.saleStatus === 1) || []
+      total.value = houseList.value.length || 0
     }
   } catch (error) {
     console.error('获取房源列表失败:', error)

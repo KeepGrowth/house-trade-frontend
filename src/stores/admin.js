@@ -66,7 +66,7 @@ export const useAdminStore = defineStore('admin', () => {
   const getPendingHouses = async (params) => {
     console.log(params)
     try {
-      const res = await api.post('/admin/audit/list',params)
+      const res = await api.post('/admin/audit/list', params)
       pendingHouses.value = res.data
       return res
     } catch (error) {
@@ -78,11 +78,12 @@ export const useAdminStore = defineStore('admin', () => {
   /**
    * 5. 提交审核结果
    */
-  const verifyHouse = async (houseId, auditStatus) => {
+  const verifyHouse = async (houseId, auditStatus, rejectReason) => {
     try {
       const res = await api.post('/admin/audit/verify', {
         houseId: houseId,
-        auditStatus: auditStatus
+        auditStatus: auditStatus,
+        rejectReason: rejectReason
       })
       return res.data
     } catch (error) {
@@ -97,7 +98,7 @@ export const useAdminStore = defineStore('admin', () => {
   const getUsers = async (queryParams) => {
     try {
       console.log(queryParams)
-      const res = await api.post('/admin/users',queryParams)
+      const res = await api.post('/admin/users', queryParams)
       return res
     } catch (error) {
       console.error('获取用户列表失败', error)
@@ -149,7 +150,7 @@ export const useAdminStore = defineStore('admin', () => {
   }
 
   // 删除用户
-  const delUser = async (userId)=>{
+  const delUser = async (userId) => {
     console.log(`/admin/users/${userId}`)
     try {
       return await api.delete(`/admin/users/${userId}`)

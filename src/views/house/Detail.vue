@@ -81,7 +81,7 @@
             <div class="mt-6">
               <h3 class="font-bold text-gray-800 mb-2">房源描述</h3>
               <p class="text-gray-600 leading-relaxed">
-                {{ house.community || '暂无详细描述，请联系房东咨询。' }}
+                {{ house.houseDesc || '暂无详细描述，请联系房东咨询。' }}
               </p>
             </div>
           </el-card>
@@ -195,21 +195,18 @@ const newReviewContent = ref('')
 const submitting = ref(false)
 const isFavorited = ref(false)
 
-// 模拟获取数据 (实际应替换为 API 调用)
+// 获取数据
 const fetchHouseDetail = async () => {
   loading.value = true
   error.value = null
   try {
-    // 对应方案中接口：GET /api/v1/houses/{id}
+    // 获取房源详情
     const response = await houseStore.fetchHouseDetail(route.params.id)
     house.value = response.data.data
-
-
     console.log(response.data.data)
     landlord.value = response.data.data.sellerInfo
     reviews.value = response.data.data.reviewInfo
-    // 检查是否已收藏 (需登录)
-    // if (userStore.isLoggedIn) { checkFavoriteStatus(); }
+    isFavorited.value = response.data.data.isFavorite === 1
 
   } catch (err) {
     error.value = '房源信息加载失败，请稍后重试'

@@ -104,7 +104,7 @@
       <el-form :model="rejectForm" label-width="80px">
         <el-form-item label="驳回原因" required>
           <el-input
-            v-model="rejectForm.reason"
+            v-model="rejectForm.rejectReason"
             type="textarea"
             :rows="4"
             placeholder="请输入具体的驳回原因，以便房东修改"
@@ -153,7 +153,7 @@ const rejectDialog = ref({
   currentHouseId: null
 })
 const rejectForm = reactive({
-  reason: ''
+  rejectReason: ''
 })
 
 // --- 方法定义 ---
@@ -189,22 +189,21 @@ const fetchAuditList = async () => {
 
 // 打开驳回弹窗
 const openRejectDialog = (row) => {
-  rejectForm.reason = ''
+  rejectForm.rejectReason = ''
   rejectDialog.value.currentHouseId = row.houseId
   rejectDialog.value.visible = true
 }
 
 
 const confirmReject = async () => {
-  if (!rejectForm.reason.trim()) {
+  if (!rejectForm.rejectReason.trim()) {
     ElMessage.warning('请填写驳回原因')
     return
   }
 
   submitting.value = true
   try {
-    await adminStore.verifyHouse(rejectDialog.value.currentHouseId, 2)
-
+    await adminStore.verifyHouse(rejectDialog.value.currentHouseId, 2, rejectForm.rejectReason)
     ElMessage.success('房源已驳回')
     rejectDialog.value.visible = false
     await fetchAuditList() // 刷新列表

@@ -21,7 +21,8 @@
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-2xl font-bold text-gray-800 border-l-4 border-blue-600 pl-3">精选好房</h3>
         <div class="flex gap-2">
-          <el-button :type="currentSort === 'default' ? 'primary' : ''" @click="currentSort = 'default'">默认排序</el-button>
+          <el-button :type="currentSort === 'default' ? 'primary' : ''" @click="currentSort = 'default'">默认排序
+          </el-button>
         </div>
       </div>
 
@@ -30,7 +31,8 @@
       </div>
 
       <!-- 房源列表网格 -->
-      <div v-else-if="recommendedHouses.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div v-else-if="recommendedHouses.length > 0"
+           class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <HouseCard
           v-for="house in recommendedHouses"
           :key="house.houseId"
@@ -65,7 +67,7 @@ import HouseCard from '@/components/HouseCard.vue'
 import useHouseStore from '@/stores/house.js'
 
 const router = useRouter()
-const houseStore= useHouseStore()
+const houseStore = useHouseStore()
 
 
 // --- 状态定义 ---
@@ -82,15 +84,21 @@ const recommendedHouses = ref([])
 
 // --- 方法定义 ---
 
-// 获取轮播图
+// 轮播图
 const fetchBanners = async () => {
   try {
-    // 模拟数据结构，实际应调用 api
-    // const res = await getBannerList()
-    // banners.value = res.data
+    // 模拟数据
     banners.value = [
-      { image: 'https://placehold.co/800x600/d4edda/155724?text=Cozy+Bedroom', title: '安心购房，从这里开始', description: '海量真实房源，专业顾问服务' },
-      { image: 'https://placehold.co/800x600/fff3cd/856404?text=Open+Kitchen', title: '新上好房', description: '精选优质小区，限时优惠' }
+      {
+        image: 'https://placehold.co/800x600/d4edda/155724?text=Cozy+Bedroom',
+        title: '安心购房，从这里开始',
+        description: '海量真实房源，专业顾问服务'
+      },
+      {
+        image: 'https://placehold.co/800x600/fff3cd/856404?text=Open+Kitchen',
+        title: '新上好房',
+        description: '精选优质小区，限时优惠'
+      }
     ]
   } catch (error) {
     console.error('Failed to fetch banners', error)
@@ -100,10 +108,9 @@ const fetchBanners = async () => {
 // 获取热门区域
 const fetchHotAreas = async () => {
   try {
-    // const res = await getHotAreas()
-    // hotAreas.value = res.data
+    // 模拟数据
     hotAreas.value = [
-      { id: 1, name: '朝阳区' }, { id: 2, name: '海淀区' },
+      { id: 1, name: '朝阳区' }, { id: 2, name: '海淀区' }
     ]
   } catch (error) {
     console.error('Failed to fetch areas', error)
@@ -123,7 +130,8 @@ const fetchRecommendedHouses = async () => {
 
     // 模拟 API 调用
     const res = await houseStore.fetchRecommendHouses()
-    recommendedHouses.value = res.data.data.houses
+    // 展示在售以及审核通过的房源
+    recommendedHouses.value = res.data.data.houses.filter(item => item.auditStatus === 1 && item.saleStatus === 1)
     total.value = res.data.total
   } catch (error) {
     ElMessage.error('加载房源失败')
@@ -157,6 +165,7 @@ onMounted(() => {
 :deep(.el-carousel__item:nth-child(2n)) {
   background-color: #99a9bf;
 }
+
 :deep(.el-carousel__item:nth-child(2n+1)) {
   background-color: #d3dce6;
 }

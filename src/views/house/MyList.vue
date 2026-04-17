@@ -65,9 +65,11 @@
 
         <el-table-column label="审核状态" width="100">
           <template #default="scope">
-            <el-tag :type="getAuditType(scope.row.auditStatus)" size="small" effect="plain">
+            <el-tag :type="getAuditType(scope.row.auditStatus)" size="small" effect="plain"
+                    v-if="scope.row.auditStatus!==2">
               {{ getAuditText(scope.row.auditStatus) }}
             </el-tag>
+            <el-alert type="error" :description="scope.row.rejectReason" v-else></el-alert>
           </template>
         </el-table-column>
 
@@ -80,7 +82,6 @@
         <!-- 操作列 -->
         <el-table-column label="操作" width="220" fixed="right">
           <template #default="scope">
-
             <el-popconfirm
               title="确定要删除该房源吗？删除后不可恢复"
               confirm-button-text="确定"
@@ -111,110 +112,110 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import axios from 'axios';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import axios from 'axios'
 import useUserStore from '@/stores/user.js'
 import useHouseStore from '@/stores/house.js' // 假设已配置好 axios 实例
 
-const router = useRouter();
-const userStore = useUserStore();
+const router = useRouter()
+const userStore = useUserStore()
 const houseStore = useHouseStore()
 
 // 状态定义
-const loading = ref(false);
-const houseList = ref([]);
+const loading = ref(false)
+const houseList = ref([])
 const pagination = ref({
   page: 1,
   pageSize: 10,
   total: 0
-});
+})
 
 const fetchHouseList = async () => {
-  loading.value = true;
+  loading.value = true
   try {
     // 模拟请求：实际应携带 Token，后端解析当前登录用户
-    const response = await userStore.fetchMyHouses();
+    const response = await userStore.fetchMyHouses()
 
-    await new Promise(resolve => setTimeout(resolve, 500)); // 模拟延迟
+    await new Promise(resolve => setTimeout(resolve, 500)) // 模拟延迟
     if (response.data.code === 200) {
-      houseList.value = response.data.data.houses;
+      houseList.value = response.data.data.houses
       console.log(houseList.value)
-      pagination.value.total = response.data.data.total;
+      pagination.value.total = response.data.data.total
     } else {
-      ElMessage.error(response.data.message || '获取房源列表失败');
+      ElMessage.error(response.data.message || '获取房源列表失败')
     }
   } catch (error) {
-    console.error(error);
-    ElMessage.error('网络请求异常');
+    console.error(error)
+    ElMessage.error('网络请求异常')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // 跳转发布页面
 const handlePublish = () => {
-  router.push('/publish-house');
-};
+  router.push('/publish-house')
+}
 
 // 跳转编辑页面
 const handleEdit = (row) => {
   if (row.auditStatus === 0) {
-    ElMessage.warning('房源审核中，暂不可编辑');
-    return;
+    ElMessage.warning('房源审核中，暂不可编辑')
+    return
   }
-  router.push(`/publish/edit/${row.house_id}`);
-};
+  router.push(`/publish/edit/${row.house_id}`)
+}
 
 // 上下架切换
 const handleToggleStatus = async (row, newStatus) => {
   try {
-    // await axios.put(`/api/v1/houses/${row.house_id}`, { sale_status: newStatus });
-    ElMessage.success(newStatus === 1 ? '房源已上架' : '房源已下架');
-    await fetchHouseList(); // 刷新列表
+    // 请求API
+    ElMessage.success(newStatus === 1 ? '房源已上架' : '房源已下架')
+    await fetchHouseList() // 刷新列表
   } catch (e) {
-    ElMessage.error('操作失败');
+    ElMessage.error('操作失败')
   }
-};
+}
 
 // 删除房源
 const handleDelete = async (id) => {
   try {
     const res = await houseStore.deleteHouse(id)
-    ElMessage.success('删除成功');
-    await fetchHouseList();
+    ElMessage.success('删除成功')
+    await fetchHouseList()
   } catch (e) {
-    ElMessage.error('删除失败');
+    ElMessage.error('删除失败')
   }
-};
+}
 
 // 辅助函数：状态文本映射 (对应数据库设计)
 const getStatusText = (status) => {
-  const map = { 1: '在售', 2: '已售', 3: '已下架' };
-  return map[status] || '未知';
-};
+  const map = { 1: '在售', 2: '已售', 3: '已下架' }
+  return map[status] || '未知'
+}
 const getStatusType = (status) => {
-  const map = { 1: 'success', 2: 'info', 3: 'warning' };
-  return map[status] || 'info';
-};
+  const map = { 1: 'success', 2: 'info', 3: 'warning' }
+  return map[status] || 'info'
+}
 
 const getAuditText = (status) => {
-  const map = { 0: '待审核', 1: '已通过', 2: '已驳回' };
-  return map[status] || '未知';
-};
+  const map = { 0: '待审核', 1: '已通过', 2: '已驳回' }
+  return map[status] || '未知'
+}
 const getAuditType = (status) => {
-  const map = { 0: 'warning', 1: 'success', 2: 'danger' };
-  return map[status] || 'info';
-};
+  const map = { 0: 'warning', 1: 'success', 2: 'danger' }
+  return map[status] || 'info'
+}
 
 const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  return dateStr.split(' ')[0]; // 简单截取日期部分
-};
+  if (!dateStr) return ''
+  return dateStr.split(' ')[0] // 简单截取日期部分
+}
 
 onMounted(() => {
-  fetchHouseList();
-});
+  fetchHouseList()
+})
 </script>
 

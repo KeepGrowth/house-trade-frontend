@@ -83,20 +83,9 @@
 
       <!-- 第三步：配套设施 -->
       <div v-show="currentStep === 2">
-        <el-form-item label="房屋配套" prop="features">
-          <el-checkbox-group v-model="formData.features">
-            <el-checkbox label="南北通透" name="feature" />
-            <el-checkbox label="精装修" name="feature" />
-            <el-checkbox label="近地铁" name="feature" />
-            <el-checkbox label="随时看房" name="feature" />
-            <el-checkbox label="拎包入住" name="feature" />
-            <el-checkbox label="电梯房" name="feature" />
-            <el-checkbox label="学区房" name="feature" />
-          </el-checkbox-group>
-        </el-form-item>
-        <el-form-item label="详细描述" prop="description">
+        <el-form-item label="详细描述" prop="houseDesc">
           <el-input
-            v-model="formData.description"
+            v-model="formData.houseDesc"
             type="textarea"
             :rows="4"
             placeholder="补充描述房屋的亮点、周边设施等..."
