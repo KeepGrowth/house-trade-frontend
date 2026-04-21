@@ -17,23 +17,37 @@
           class="admin-menu"
         >
           <el-menu-item index="/admin">
-            <el-icon><DataAnalysis /></el-icon>
+            <el-icon>
+              <DataAnalysis />
+            </el-icon>
             <template #title>数据看板</template>
           </el-menu-item>
 
           <el-menu-item index="/admin/users">
-            <el-icon><User /></el-icon>
+            <el-icon>
+              <User />
+            </el-icon>
             <template #title>用户管理</template>
           </el-menu-item>
 
           <el-menu-item index="/admin/audit">
-            <el-icon><DocumentChecked /></el-icon>
+            <el-icon>
+              <DocumentChecked />
+            </el-icon>
             <template #title>房源审核</template>
           </el-menu-item>
 
           <el-menu-item index="/admin/reviews">
-            <el-icon><ChatDotRound /></el-icon>
-            <template #title>评价管理</template>
+            <el-icon>
+              <ChatDotRound />
+            </el-icon>
+            <template #title>房源评价评价管理</template>
+          </el-menu-item>
+          <el-menu-item index="/admin/forum">
+            <el-icon>
+              <ChatDotRound />
+            </el-icon>
+            <template #title>论坛管理</template>
           </el-menu-item>
         </el-menu>
       </el-aside>
@@ -119,7 +133,7 @@ const handleCommand = async (command) => {
       await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning',
+        type: 'warning'
       })
       // 清除本地状态和 Token
       userStore.logout()
@@ -181,7 +195,7 @@ const handleCommand = async (command) => {
 
   .admin-header {
     background-color: #fff;
-    box-shadow: 0 1px 4px rgba(0,21,41,.08);
+    box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
     display: flex;
     align-items: center;
     justify-content: space-between;

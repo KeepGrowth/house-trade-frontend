@@ -42,25 +42,38 @@ const routes = [
         component: () => import('@/views/user/Register.vue'),
         meta: { title: '注册', hideInMenu: true }
       },
+      {
+        path: 'forum-detail/:id',
+        name: 'ForumDetail',
+        props: true,
+        component: () => import('@/views/home/ForumDetail.vue'),
+        meta: { title: '论坛', hideInMenu: true }
+      },
+      {
+        path: 'forum-list',
+        name: 'ForumList',
+        component: () => import('@/views/home/ForumList.vue'),
+        meta: { title: '论坛列表', hideInMenu: true }
+      },
 
       // --- 用户/房东模块 (需登录) ---
       {
         path: 'user/center',
         name: 'UserCenter',
         component: () => import('@/views/user/Center.vue'),
-        meta: { title: '个人中心', requiresAuth: true, roles:[1,2,3] }
+        meta: { title: '个人中心', requiresAuth: true, roles: [1, 2, 3] }
       },
       {
         path: 'user/my-houses',
         name: 'MyHouses',
         component: () => import('@/views/house/MyList.vue'),
-        meta: { title: '我的房源', requiresAuth: true,roles:[2]} // 角色2: 房东
+        meta: { title: '我的房源', requiresAuth: true, roles: [2] } // 角色2: 房东
       },
       {
         path: 'publish-house',
         name: 'PublishHouse',
         component: () => import('@/views/house/Publish.vue'),
-        meta: { title: '发布房源', requiresAuth: true}
+        meta: { title: '发布房源', requiresAuth: true }
       },
       {
         path: 'user/favorites',
@@ -73,7 +86,7 @@ const routes = [
   {
     path: '/admin',
     component: AdminLayout,
-    meta: {  }, // 角色3: 管理员
+    meta: {}, // 角色3: 管理员
     children: [
       // --- 管理员后台模块 ---
       {
@@ -99,6 +112,12 @@ const routes = [
         name: 'AdminReviews',
         component: () => import('@/views/admin/ReviewManage.vue'),
         meta: { title: '评价管理' }
+      },
+      {
+        path: 'forum',
+        name: 'AdminForum',
+        component: () => import('@/views/admin/ForumManage.vue'),
+        meta: { title: '论坛内容管理' }
       }
     ]
   },

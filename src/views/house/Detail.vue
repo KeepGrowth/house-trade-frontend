@@ -255,6 +255,7 @@ const submitReview = async () => {
     reviews.value.unshift(newReview)
     newReviewContent.value = ''
     ElMessage.success('评论发表成功')
+    await fetchHouseDetail()
   } catch (e) {
     ElMessage.error('评论失败，请先登录' + e)
   } finally {
@@ -262,8 +263,8 @@ const submitReview = async () => {
   }
 }
 
-onMounted(() => {
-  fetchHouseDetail()
+onMounted(async () => {
+  await fetchHouseDetail()
 })
 </script>
 

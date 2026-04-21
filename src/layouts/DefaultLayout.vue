@@ -27,6 +27,13 @@
           >
             房源列表
           </router-link>
+          <router-link
+            to="/forum-list"
+            class="text-gray-600 hover:text-blue-600 font-medium transition"
+            active-class="text-blue-600"
+          >
+            论坛
+          </router-link>
         </nav>
 
         <!-- 右侧用户操作区 -->

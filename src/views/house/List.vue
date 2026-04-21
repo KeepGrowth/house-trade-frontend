@@ -58,7 +58,7 @@
           <!-- 房源图片 -->
           <div class="relative h-48 bg-gray-200 overflow-hidden">
             <img
-              :src="house.imageUrls[0].imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'"
+              :src="house.imageUrls[0]?.imageUrl || 'https://placehold.co/600x400/e2e8f0/94a3b8?text=No+Image'"
               :alt="house.title"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -97,7 +97,7 @@
           :page-sizes="[10,20,30,40]"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
-          @size-change="handleSizeChange"
+          @size-change="fetchHouseList"
           @current-change="fetchHouseList"
         />
       </div>
@@ -127,7 +127,7 @@ const filters = reactive({
 })
 
 // 分页配置
-const pagination = reactive({
+const pagination = ref({
   page: 1,
   pageSize: 10
 })
@@ -188,11 +188,6 @@ const resetFilters = () => {
   handleSearch()
 }
 
-// 分页大小改变
-const handleSizeChange = () => {
-  pagination.page = 1
-  fetchHouseList()
-}
 
 // 跳转详情
 const goToDetail = (id) => {
