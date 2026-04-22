@@ -155,6 +155,10 @@
             <el-button class="w-full" :type="isFavorited ? 'danger' : 'default'" @click="toggleFavorite">
               {{ isFavorited ? '已收藏' : '收藏房源' }}
             </el-button>
+            <el-button :disabled="house.saleStatus!==1" class="w-full mt-2"
+                       :type="house.saleStatus===1?'success':'warning'" @click="buyHouse">
+              {{ house.saleStatus === 1 ? '购买此房' : '此房已下架或出售' }}
+            </el-button>
           </el-card>
 
         </div>
@@ -167,7 +171,7 @@
 
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import { Star, Warning, Phone } from '@element-plus/icons-vue'
 import useHouseStore from '@/stores/house.js'
 import useUserStore from '@/stores/user.js'
@@ -260,6 +264,18 @@ const submitReview = async () => {
     ElMessage.error('评论失败，请先登录' + e)
   } finally {
     submitting.value = false
+  }
+}
+
+// 买房按钮
+const buyHouse = async () => {
+  const res = await houseStore.buyHouse(route.params.id)
+  if (res.data.code === 200) {
+    ElNotification.success({
+      title: '成功',
+      message: '购买成功！'
+    })
+    await fetchHouseDetail()
   }
 }
 

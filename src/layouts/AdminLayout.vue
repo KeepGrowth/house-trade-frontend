@@ -70,7 +70,7 @@
             <el-dropdown @command="handleCommand">
               <span class="user-info">
 
-                <span class="username is-align-center">{{ userStore.userInfo.username }}</span>
+                <span class="username is-align-center">{{ userStore.userInfo?.username }}</span>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -138,7 +138,6 @@ const handleCommand = async (command) => {
       // 清除本地状态和 Token
       userStore.logout()
       ElMessage.success('退出成功')
-      router.push('/login')
     } catch {
       // 取消操作
     }

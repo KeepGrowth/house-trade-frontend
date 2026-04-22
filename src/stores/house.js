@@ -31,7 +31,7 @@ export const useHouseStore = defineStore('house', () => {
   }
 
   // 条件筛选房源列表
-  const queryHouseList = async (params={})=>{
+  const queryHouseList = async (params = {}) => {
     try {
       return await api.post('/houses/query', params)
     } catch (error) {
@@ -121,8 +121,8 @@ export const useHouseStore = defineStore('house', () => {
     try {
       const res = await api.post(`/houses/upload-house-images?house_id=${houseId}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+          'Content-Type': 'multipart/form-data'
+        }
       })
       ElMessage.success('图片上传成功')
       return res // 返回 URL 列表
@@ -248,13 +248,21 @@ export const useHouseStore = defineStore('house', () => {
     }
   }
 
+  // 购买房源
+  const buyHouse = async (houseId) => {
+    try {
+      const res = await api.post(`/houses/buy`,
+        Number(houseId)
+      )
+      return res
+    } catch (error) {
+      console.error('提交评价失败', error)
+      throw error
+    }
+  }
+
   // 返回所有需要的状态和方法
   return {
-    currentHouse,
-    houseList,
-    total,
-    hotDistricts,
-    recommendList,
     fetchHouseList,
     fetchHouseDetail,
     fetchHotDistricts,
@@ -267,13 +275,14 @@ export const useHouseStore = defineStore('house', () => {
     toggleFavorite,
     fetchHouseReviews,
     createHouseReview,
-    queryHouseList
+    queryHouseList,
+    buyHouse
   }
 }, {
   persist: {
     key: 'house_store',
     paths: ['hotDistricts'], // 仅持久化不太变化的数据，如热门区域，列表数据通常不持久化
-    storage: localStorage,
+    storage: localStorage
   }
 })
 
