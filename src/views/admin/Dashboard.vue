@@ -9,56 +9,43 @@
       style="margin-bottom: 15px"
     >AI助手提醒：{{ aiText }}
     </el-alert>
-
     <!-- 核心指标卡片 (可选补充) -->
     <el-row :gutter="20" class="mb-6">
       <el-col :span="6" v-for="(item, index) in summaryData" :key="index">
-        <el-card shadow="hover" class="stat-card">
-          <div class="flex justify-between items-center">
-            <div>
-              <p class="text-gray-500 text-sm">{{ item.title }}</p>
-              <p class="text-2xl font-bold mt-2">{{ item.value }}</p>
-            </div>
-            <el-icon :size="30" color="#409EFF">
-              <component :is="item.icon" />
-            </el-icon>
-          </div>
-        </el-card>
+        <indicator-card title="用户总数" data="23" :is-show="false" />
       </el-col>
     </el-row>
 
-    <!-- 图表区域 -->
-    <el-row :gutter="20">
-      <!-- 注册用户趋势图 -->
-      <el-col :span="12" class="mb-6">
-        <el-card shadow="always">
-          <template #header>
-            <div class="card-header font-bold">注册用户数趋势</div>
-          </template>
-          <div ref="userTrendChart" style="width: 100%; height: 350px;"></div>
-        </el-card>
+    <!-- 图表1展示区域 -->
+    <el-row :gutter="20" class="h-[600px] mb-19">
+      <el-col :span="8">
+        <!--用户注册趋势图-->
+        <line-chart
+          :title="'用户注册趋势'"
+        />
       </el-col>
-
-      <!-- 区域房源占比图 -->
-      <el-col :span="12" class="mb-6">
-        <el-card shadow="always">
-          <template #header>
-            <div class="card-header font-bold">各区域房源占比</div>
-          </template>
-          <div ref="districtChart" style="width: 100%; height: 350px;"></div>
-        </el-card>
+      <el-col :span="8">
+        <!--房源区域分布-->
+        <pie-chart
+          :title="'房源区域分布'"
+        />
       </el-col>
-
-      <!-- 房源状态统计图 -->
+      <el-col :span="8">
+        <!--成交额分布-->
+        <bar-chart
+          :title="'成交额趋势'"
+        />
+      </el-col>
+    </el-row>
+    <!--图表2展示区域-->
+    <el-row :gutter="20" class="h-[800px] mt-19">
       <el-col :span="24">
-        <el-card shadow="always">
-          <template #header>
-            <div class="card-header font-bold">房源成交量与状态统计</div>
-          </template>
-          <div ref="houseStatusChart" style="width: 100%; height: 350px;"></div>
-        </el-card>
+        <line-chart
+          :title="'房源变化'"
+        />
       </el-col>
     </el-row>
+
   </div>
 </template>
 
@@ -66,6 +53,10 @@
 import { ref, onMounted, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import useDashBoardStore from '@/stores/dashboard.js'
+import IndicatorCard from '@/components/IndicatorCard.vue'
+import LineChart from '@/components/charts/LineChart.vue'
+import PieChart from '@/components/charts/PieChart.vue'
+import BarChart from '@/components/charts/BarChart.vue'
 
 // 响应式引用
 const userTrendChart = ref(null)
@@ -143,12 +134,12 @@ const dashboardStore = useDashBoardStore()
 
 // 得到AI助手的整体分析。
 const aiText = ref('')
-const getAiText = async ()=>{
+const getAiText = async () => {
   try {
     const res = await dashboardStore.getAiStats()
     if (res.data.code === 200) {
       console.log(res.data.data.text)
-      aiText.value=res.data.data.text
+      aiText.value = res.data.data.text
     }
   } catch (error) {
     console.error('获取统计数据失败', error)
