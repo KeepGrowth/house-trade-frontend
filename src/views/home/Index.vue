@@ -46,10 +46,10 @@
       <el-empty v-else description="暂无推荐房源" />
 
       <!-- 分页 (如果首页需要分页加载) -->
-      <div class="mt-8 flex justify-center" v-if="totalPages > 1">
+      <div class="mt-8 flex justify-center" v-if="total > 1">
         <el-pagination
-          v-model:current-page="currentPage"
-          :page-size="pageSize"
+          v-model:current-page="queryParams.page"
+          :page-size="queryParams.pageSize"
           :total="total"
           layout="prev, pager, next"
           @current-change="fetchRecommendedHouses"
@@ -72,17 +72,21 @@ const houseStore = useHouseStore()
 
 // --- 状态定义 ---
 const loading = ref(false)
-const currentPage = ref(1)
-const pageSize = ref(8)
 const total = ref(0)
 const currentSort = ref('default')
 
 // 数据模型
 const banners = ref([])
-const hotAreas = ref([])
+
 const recommendedHouses = ref([])
 
 // --- 方法定义 ---
+const queryParams = ref({
+  page: 1,
+  pageSize: 10,
+  auditStatus: 1,
+  saleStatus: 1
+})
 
 // 轮播图
 const fetchBanners = async () => {
@@ -105,34 +109,16 @@ const fetchBanners = async () => {
   }
 }
 
-// 获取热门区域
-const fetchHotAreas = async () => {
-  try {
-    // 模拟数据
-    hotAreas.value = [
-      { id: 1, name: '朝阳区' }, { id: 2, name: '海淀区' }
-    ]
-  } catch (error) {
-    console.error('Failed to fetch areas', error)
-  }
-}
 
 // 获取推荐房源
 const fetchRecommendedHouses = async () => {
   loading.value = true
   try {
-    // 构造查询参数
-    const params = {
-      page: currentPage.value,
-      limit: pageSize.value,
-      sort: currentSort.value
-    }
-
     // 模拟 API 调用
-    const res = await houseStore.fetchRecommendHouses()
+    const res = await houseStore.fetchRecommendHouses(queryParams.value)
     // 展示在售以及审核通过的房源
     recommendedHouses.value = res.data.data.houses.filter(item => item.auditStatus === 1 && item.saleStatus === 1)
-    total.value = res.data.total
+    total.value = res.data.data.total
   } catch (error) {
     ElMessage.error('加载房源失败')
   } finally {
@@ -150,10 +136,9 @@ const goToDetail = (id) => {
 }
 
 // --- 生命周期 ---
-onMounted(() => {
-  fetchBanners()
-  fetchHotAreas()
-  fetchRecommendedHouses()
+onMounted(async () => {
+  await fetchBanners()
+  await fetchRecommendedHouses()
 })
 </script>
 

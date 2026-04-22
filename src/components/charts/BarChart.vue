@@ -6,11 +6,6 @@
     <div class="flex justify-between items-center mb-4">
       <div>
         <h3 class="text-lg font-bold text-gray-800">{{ title }}</h3>
-        <p class="text-xs text-gray-400 mt-1">数据来源：模拟业务系统</p>
-      </div>
-      <!-- 可选：日期范围展示 -->
-      <div v-if="dateRange" class="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded">
-        {{ dateRange }}
       </div>
     </div>
 
@@ -25,8 +20,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import * as echarts from 'echarts';
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import * as echarts from 'echarts'
 
 // --- Props 定义 ---
 const props = defineProps({
@@ -34,48 +29,29 @@ const props = defineProps({
     type: String,
     default: '月度销售趋势分析'
   },
-  dateRange: {
-    type: String,
-    default: '最近 7 天'
+  data: {
+    categories: [],
+    data: []
   },
   loading: {
     type: Boolean,
     default: false
   }
-});
+})
 
 // --- Refs ---
-const chartRef = ref(null);
-let chartInstance = null;
-
-// --- 模拟数据生成器 ---
-// 根据传入的日期范围字符串，生成不同的模拟数据
-const generateMockData = (rangeStr) => {
-  const days = rangeStr.includes('30') ? 30 : 7; // 简单逻辑判断
-  const categories = [];
-  const data = [];
-
-  for (let i = 0; i < days; i++) {
-    // 生成日期标签 (例如: 10-01)
-    const date = new Date();
-    date.setDate(date.getDate() - (days - i));
-    categories.push(`${date.getMonth() + 1}/${date.getDate()}`);
-
-    // 生成随机数值 (500 - 5000)
-    data.push(Math.floor(Math.random() * 4500) + 500);
-  }
-  return { categories, data };
-};
+const chartRef = ref(null)
+let chartInstance = null
 
 // --- ECharts 配置与初始化 ---
 const initChart = () => {
-  if (!chartRef.value) return;
+  if (!chartRef.value) return
 
   // 1. 初始化实例
-  chartInstance = echarts.init(chartRef.value);
+  chartInstance = echarts.init(chartRef.value)
 
   // 2. 获取数据
-  const { categories, data } = generateMockData(props.dateRange);
+  const { categories, data } = props.data
 
   // 3. 配置项 (商务风格)
   const option = {
@@ -141,43 +117,46 @@ const initChart = () => {
         }
       }
     ]
-  };
+  }
 
-  chartInstance.setOption(option);
-};
+  chartInstance.setOption(option)
+}
 
 // --- 监听与生命周期 ---
+watch(props, () => {
+  initChart()
+})
 
 // 监听窗口大小变化，实现响应式
 const handleResize = () => {
-  chartInstance && chartInstance.resize();
-};
+  chartInstance && chartInstance.resize()
+}
 
 // 监听 dateRange 变化，更新数据
 watch(() => props.dateRange, () => {
   // 实际项目中这里应该调用 API
   // 这里为了演示，重新生成数据并 setOption
-  const { categories, data } = generateMockData(props.dateRange);
+  const { categories, data } = generateMockData(props.dateRange)
   chartInstance.setOption({
     xAxis: { data: categories },
     series: [{ data: data }]
-  });
-});
+  })
+})
 
 onMounted(() => {
   nextTick(() => {
-    initChart();
-    window.addEventListener('resize', handleResize);
-  });
-});
+    initChart()
+    window.addEventListener('resize', handleResize)
+  })
+})
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
+  window.removeEventListener('resize', handleResize)
   if (chartInstance) {
-    chartInstance.dispose();
-    chartInstance = null;
+    chartInstance.dispose()
+    chartInstance = null
   }
-});
+})
 </script>
 
 <style scoped>

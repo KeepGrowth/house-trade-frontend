@@ -3,25 +3,6 @@
     <!-- 顶部控制栏：日期选择 -->
     <div class="flex justify-between items-center mb-4 px-2">
       <h3 class="text-gray-700 font-medium text-lg tracking-wide">{{ props.title }}</h3>
-      <div class="flex items-center gap-2">
-        <input
-          type="date"
-          v-model="dateRange.start"
-          class="text-xs border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-gray-50 px-2 py-1 text-gray-600 outline-none border"
-        />
-        <span class="text-gray-400 text-xs">至</span>
-        <input
-          type="date"
-          v-model="dateRange.end"
-          class="text-xs border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-gray-50 px-2 py-1 text-gray-600 outline-none border"
-        />
-        <button
-          @click="updateData"
-          class="ml-2 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded transition-colors duration-200"
-        >
-          查询
-        </button>
-      </div>
     </div>
 
     <!-- 图表容器 -->
@@ -39,7 +20,8 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import * as echarts from 'echarts'
 
 const props = defineProps({
-  title: ''
+  title: '',
+  data:'',
 })
 
 // --- 状态定义 ---
@@ -47,11 +29,6 @@ const chartRef = ref(null)
 let chartInstance = null
 const loading = ref(false)
 
-// 日期范围默认值
-const dateRange = ref({
-  start: '2023-10-01',
-  end: '2023-10-31'
-})
 
 // --- 极简商务配色方案 ---
 // 这种配色去除了高饱和度颜色，显得更专业、冷静
@@ -66,7 +43,7 @@ const colorPalette = [
 
 // --- 模拟数据生成器 ---
 const generateMockData = () => {
-  const categories = ['电子产品', '家居生活', '服饰鞋包', '美妆护肤', '食品饮料', '其他']
+  const categories = props.categories
   return categories.map((name, index) => ({
     name,
     value: Math.floor(Math.random() * 5000) + 1000, // 随机数值
@@ -104,7 +81,7 @@ const initChart = () => {
     },
     series: [
       {
-        name: '营收',
+        name: '数值',
         type: 'pie',
         radius: ['40%', '70%'], // 环形图，中间镂空
         center: ['50%', '50%'],
@@ -139,7 +116,7 @@ const initChart = () => {
           scale: true, // 悬停放大
           scaleSize: 5
         },
-        data: generateMockData()
+        data: props.data
       }
     ]
   }
@@ -153,7 +130,7 @@ const updateData = () => {
   // 模拟网络请求延迟
   setTimeout(() => {
     if (chartInstance) {
-      const newData = generateMockData()
+      const newData = props.data
       chartInstance.setOption({ series: [{ data: newData }] })
     }
     loading.value = false
@@ -179,9 +156,8 @@ onUnmounted(() => {
 })
 
 // 监听窗口大小变化（Tailwind 断点切换时可能需要微调，但 ECharts resize 通常足够）
-watch(() => dateRange.value, () => {
-  // 日期改变时也可以触发更新，这里为了演示保留按钮点击
-  // updateData();
+watch(props, () => {
+  updateData()
 }, { deep: true })
 
 </script>

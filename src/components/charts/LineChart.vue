@@ -6,22 +6,6 @@
     <div class="flex justify-between items-center p-4 border-b border-gray-100">
       <h3 class="text-gray-800 font-semibold text-lg tracking-wide">{{ props.title }}</h3>
 
-      <!-- 日期选择器 -->
-      <div class="flex bg-gray-50 rounded-md p-1">
-        <button
-          v-for="range in dateRanges"
-          :key="range.value"
-          @click="currentRange = range.value"
-          :class="[
-            'px-3 py-1 text-xs font-medium rounded transition-all duration-200',
-            currentRange === range.value
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
-          ]"
-        >
-          {{ range.label }}
-        </button>
-      </div>
     </div>
 
     <!-- 图表容器：宽高 100% -->
@@ -30,55 +14,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import * as echarts from 'echarts';
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import * as echarts from 'echarts'
 
 const props = defineProps({
-  title:'曲线图组件'
+  title: '曲线图组件',
+  xAxis: [],
+  yAxis: []
 })
 
 // --- 1. 配置与状态 ---
-const chartRef = ref(null);
-let chartInstance = null;
-const currentRange = ref('7d'); // 默认选中 7天
+const chartRef = ref(null)
+let chartInstance = null
 
-const dateRanges = [
-  { label: '近7天', value: '7d' },
-  { label: '近30天', value: '30d' },
-  { label: '近3月', value: '3m' },
-];
-
-// --- 2. 模拟数据生成器 ---
-const generateData = (days) => {
-  const data = [];
-  const baseValue = Math.floor(Math.random() * 5000) + 2000;
-
-  for (let i = 0; i < days; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() - (days - 1 - i));
-    const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
-
-    // 模拟波动
-    const randomChange = Math.floor(Math.random() * 1000) - 400;
-    const value = Math.max(0, (data[i-1]?.value || baseValue) + randomChange);
-
-    data.push({
-      name: dateStr,
-      value: value
-    });
-  }
-  return data;
-};
 
 // --- 3. ECharts 配置 (极简商务风) ---
 const updateChart = () => {
-  if (!chartInstance) return;
+  if (!chartInstance) return
 
   // 根据选择生成数据
-  const days = currentRange.value === '7d' ? 7 : currentRange.value === '30d' ? 30 : 90;
-  const mockData = generateData(days);
-  const dates = mockData.map(item => item.name);
-  const values = mockData.map(item => item.value);
+  const dates = props?.xAxis
+  const values = props?.yAxis
 
   const option = {
     // 提示框
@@ -92,7 +48,7 @@ const updateChart = () => {
       extraCssText: 'box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);', // 阴影
       formatter: (params) => {
         return `<div class="font-medium text-gray-800">${params[0].name}</div>
-                <div class="text-blue-600 font-bold mt-1">${params[0].value.toLocaleString()}</div>`;
+                <div class="text-blue-600 font-bold mt-1">${params[0].value.toLocaleString()}</div>`
       }
     },
     // 网格布局
@@ -152,43 +108,41 @@ const updateChart = () => {
         animationEasing: 'cubicOut'
       }
     ]
-  };
+  }
 
-  chartInstance.setOption(option);
-};
+  chartInstance.setOption(option)
+}
 
 // --- 4. 生命周期与监听 ---
-
+watch(props, () => {
+  updateChart()
+})
 // 监听窗口大小变化 (响应式)
-let resizeObserver = null;
+let resizeObserver = null
 
 onMounted(() => {
   // 初始化 ECharts
-  chartInstance = echarts.init(chartRef.value);
+  chartInstance = echarts.init(chartRef.value)
 
   // 初始渲染
-  updateChart();
+  updateChart()
 
   // 监听 DOM 容器大小变化 (比 window.resize 更精准)
   resizeObserver = new ResizeObserver(() => {
-    chartInstance.resize();
-  });
-  resizeObserver.observe(chartRef.value);
-});
+    chartInstance.resize()
+  })
+  resizeObserver.observe(chartRef.value)
+})
 
-// 监听日期范围变化
-watch(currentRange, () => {
-  updateChart();
-});
 
 // 组件卸载
 onUnmounted(() => {
   if (chartInstance) {
-    chartInstance.dispose();
-    chartInstance = null;
+    chartInstance.dispose()
+    chartInstance = null
   }
   if (resizeObserver) {
-    resizeObserver.disconnect();
+    resizeObserver.disconnect()
   }
-});
+})
 </script>
