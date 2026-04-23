@@ -55,7 +55,7 @@
 
             <el-divider />
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div class="grid grid-cols-2 md:grid-cols- gap-4 text-center">
               <div class="p-2 bg-gray-50 rounded">
                 <div class="text-gray-500 text-xs">户型</div>
                 <div class="font-semibold text-lg">{{ house.houseTypeLabel }}</div>
@@ -75,6 +75,10 @@
               <div class="p-2 bg-gray-50 rounded">
                 <div class="text-gray-500 text-xs">发布时间</div>
                 <div class="font-semibold text-sm mt-1">{{ formatTime(house.createTime) }}</div>
+              </div>
+              <div class="p-2 bg-gray-50 rounded">
+                <div class="text-gray-500 text-xs">配套设施</div>
+                <div class="font-semibold text-sm mt-1">{{ house.emenities }}</div>
               </div>
             </div>
 
