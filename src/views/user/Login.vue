@@ -21,7 +21,7 @@
           <el-input
             v-model="loginForm.username"
             placeholder="请输入账号/手机号"
-            prefix-icon="User"
+            :prefix-icon="User"
             clearable
           />
         </el-form-item>
@@ -32,7 +32,7 @@
             v-model="loginForm.password"
             type="password"
             placeholder="请输入密码"
-            prefix-icon="Lock"
+            :prefix-icon="Plus"
             show-password
             @keyup.enter="handleLogin"
           />
@@ -69,6 +69,7 @@ import { ElMessage } from 'element-plus';
 // 假设已封装 axios 实例
 import request from '@/utils/request';
 import useUserStore from '@/stores/user.js'
+import { Plus, Unlock, User } from '@element-plus/icons-vue'
 
 const router = useRouter();
 const userStore = useUserStore();

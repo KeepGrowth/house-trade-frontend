@@ -33,13 +33,10 @@ export const useHouseStore = defineStore('house', () => {
 
     // 条件筛选房源列表
     const queryHouseList = async (params = {}) => {
-      try {
-        return await api.post('/houses/query', params)
-      } catch (error) {
-        console.error('条件查询房源列表失败', error)
-        ElMessage.error(error.response?.data?.message || '获取房源列表失败')
-        throw error
-      }
+
+      const cleanParams = utils.cleanObject(params)
+      return await api.get('/houses/query', { params: cleanParams })
+
     }
 
     /**
