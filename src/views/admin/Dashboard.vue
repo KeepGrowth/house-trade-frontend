@@ -57,24 +57,9 @@
           :data="housePieData"
         />
       </el-col>
-      <el-col :span="8">
-        <!--成交额分布-->
-        <bar-chart
-          :title="'成交额趋势'"
-          :data="orderLineChartData"
-        />
-      </el-col>
+
     </el-row>
-    <!--图表2展示区域-->
-    <el-row :gutter="20" class="h-[800px] mt-19">
-      <el-col :span="24">
-        <line-chart
-          :title="'房源新增趋势'"
-          :x-axis="houseAddTrendData?.x_axis"
-          :y-axis="houseAddTrendData?.y_axis"
-        />
-      </el-col>
-    </el-row>
+
 
   </div>
 </template>

@@ -21,7 +21,7 @@
         <!-- 房源图片 -->
         <div class="relative h-48 w-full overflow-hidden cursor-pointer" @click="goToDetail(item.houseId)">
           <img
-            :src="item.house?.imageUrls[0].imageUrl || '/images/default-house.png'"
+            :src="item.house?.imageUrls[0]?.imageUrl || 'https://placehold.co/800x600/d4edda/155724?text=Cozy+Bedroom'"
             alt="房源封面"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
