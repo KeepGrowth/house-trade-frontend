@@ -3,9 +3,11 @@ import axios from 'axios'
 // const baseURL = process.env.NODE_ENV === 'development'
 //   ? 'https://859707243.xyz:21352'  // 开发环境-本地地址
 //   : 'https://192.168.1.86:21352' // 生产环境-线上地址（替换成你的真实地址）
-const baseURL = process.env.NODE_ENV === 'development'
-  ? 'http://localhost:8086'  // 开发环境-本地地址
-  : 'http://192.168.1.86:8086' // 生产环境-线上地址（替换成你的真实地址）
+// 生产环境和开发环境请求不同API。
+const baseURL =
+  import.meta.env.DEV
+    ? 'http://localhost:8889' // 开发环境
+    : 'https://859707243.xyz:21352' // 生产环境
 
 
 // 1. 创建axios实例（只做基础配置，不在headers中写死Token）
